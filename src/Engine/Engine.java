@@ -9,7 +9,7 @@ public class Engine {
     private int scene = 0;
     private final ArrayList<Scene> scenes = new ArrayList<Scene>();
     private Scene now;
-    private String name = "Game";
+    private String name;
     private double fps = 60.0;
     private KeyMapping kmap;
 

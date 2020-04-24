@@ -59,7 +59,7 @@ public class Sprite extends JComponent implements Comparable<Sprite> {
         Graphics2D g = (Graphics2D) gr.create();
         BufferedImage buffer = image.getBuffer();
         if ( buffer != null) {
-            g.drawImage(buffer, x, this.h-image.h-y-39, this);
+            g.drawImage(buffer, x, this.h-image.h-y, this);
         }
     }
 

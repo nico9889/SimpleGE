@@ -8,7 +8,7 @@ import java.io.File;
 import java.io.IOException;
 
 public class Image{
-    private BufferedImage buffer;
+    private final BufferedImage buffer;
     protected int w, h;
 
     public Image(@NotNull String path) throws IOException{

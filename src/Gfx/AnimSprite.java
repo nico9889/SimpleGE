@@ -23,7 +23,7 @@ public class AnimSprite extends Sprite {
         Graphics2D g = (Graphics2D) gr.create();
         BufferedImage buffer = this.image.getBuffer();
         if ( buffer != null) {
-            g.drawImage(buffer, x, super.h-this.image.h-y-39, this);
+            g.drawImage(buffer, x, super.h-this.image.h-y, this);
         }
     }
 

@@ -19,7 +19,7 @@ public class Main {
         ArrayList<Sprite> clouds = new ArrayList<>();
         Random rnd = new Random();
         for(int i=0;i<10;i++){
-            clouds.add(new Sprite("C:/Users/Nicola/Desktop/cloud.png",Math.abs(rnd.nextInt())%1000,Math.abs(rnd.nextInt())%700+50,1));
+            clouds.add(new Sprite("resources/sprites/cloud.png",Math.abs(rnd.nextInt())%1000,Math.abs(rnd.nextInt())%700+50,1));
         }
         return clouds;
     }
@@ -27,12 +27,12 @@ public class Main {
         Random rnd = new Random();
         Engine engine = new Engine(1280,720, "Test Game");
         Scene scene = new Scene("Test scene");
-        Sprite bg = new Sprite("C:/Users/Nicola/Desktop/background.png", 0,0,2);
-        Sprite terrain = new Sprite("C:/Users/Nicola/Desktop/background2.png", 0,0,0);
+        Sprite bg = new Sprite("resources/sprites/background.png", 0,0,2);
+        Sprite terrain = new Sprite("resources/sprites/background2.png", 0,0,0);
 
         // TODO: separate object creation in different sources
-        Image spraterino1 = new Image("C:/Users/Nicola/Desktop/spraterino1.png");
-        Image spraterino2 = new Image("C:/Users/Nicola/Desktop/spraterino2.png");
+        Image spraterino1 = new Image("resources/sprites/spraterino1.png");
+        Image spraterino2 = new Image("resources/sprites/spraterino2.png");
         Image[] run_anim = {spraterino1, spraterino2};
 
         // FIXME: this is not Sonic now
