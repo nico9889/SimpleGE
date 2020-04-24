@@ -6,21 +6,19 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Supplier;
 
-public class KeyMapping implements KeyListener {
-    static Set<KeyMap> mapping = null;
+public class KeyMapping extends HashSet<KeyMap> implements KeyListener {
     static Set<Integer> pressed = null;
 
     public KeyMapping(){
-        mapping = new HashSet<>();
         pressed = new HashSet<>();
     }
 
     public void addKey(Character key, Runnable func){
-        mapping.add(new KeyMap(key, func));
+        this.add(new KeyMap(key, func));
     }
 
     public void addKey(KeyMap km){
-        mapping.add(km);
+        this.add(km);
     }
 
     @Override

@@ -11,6 +11,7 @@ public class Engine {
     private Scene now;
     private String name = "Game";
     private double fps = 60.0;
+    private KeyMapping kmap;
 
     public Engine(int w, int h, String gameName){
         window = Window.get(w, h);
@@ -32,6 +33,7 @@ public class Engine {
 
     public void addKeyMap(KeyMapping map){
         window.addKeyMapping(map);
+        this.kmap = map;
     }
 
     private void registerSprites(){
@@ -54,7 +56,7 @@ public class Engine {
 
     public void update() throws InterruptedException {
         Thread.sleep((long)((1.0/this.fps)*1000.0));
-        for(KeyMap map:KeyMapping.mapping){
+        for(KeyMap map:kmap){
             for(int key:KeyMapping.pressed)
                 if(map.getKey()==key){
                     map.getFunc().run();
