@@ -28,4 +28,9 @@ public class Scene {
     public ArrayList<Sprite> getSprites() {
         return sprites;
     }
+
+    @Override
+    public String toString(){
+        return String.format("Scene[%s]", this.name);
+    }
 }

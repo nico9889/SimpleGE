@@ -5,15 +5,23 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 
 // Single sprite
 public class Sprite extends JComponent implements Comparable<Sprite> {
-    private Image image;
+    private final Image image;
     protected int x, y, z;
-    private int w, h;
+    protected int w, h;
 
-    public Sprite(@NotNull String path, int x, int y, int z) {
+    public Sprite(@NotNull String path, int x, int y, int z) throws IOException {
         image = new Image(path);
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
+
+    public Sprite(@NotNull Image img, int x, int y, int z){
+        image = img;
         this.x = x;
         this.y = y;
         this.z = z;
@@ -45,6 +53,7 @@ public class Sprite extends JComponent implements Comparable<Sprite> {
     public boolean visible(){
         return x <= w && y <= h;
     }
+
     @Override
     public void paintComponent(Graphics gr) {   // This method get called at every JFrame refresh
         Graphics2D g = (Graphics2D) gr.create();

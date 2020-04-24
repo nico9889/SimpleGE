@@ -2,6 +2,7 @@ package Gfx;
 
 import org.jetbrains.annotations.NotNull;
 
+import javax.imageio.IIOException;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
@@ -13,15 +14,15 @@ public class Image{
     private BufferedImage buffer;
     protected int w, h;
 
-    public Image(@NotNull String path){
+    public Image(@NotNull String path) throws IOException{
         try {
             File input = new File(path);
             buffer = ImageIO.read(input);
             w = buffer.getWidth();
             h = buffer.getHeight();
         } catch (IOException e) {
-            System.out.println("Image.Image - Error while loading image: " + path);
             e.printStackTrace();
+            throw new IOException("Image.Image - Error while loading image: " + path);
         }
     }
 
