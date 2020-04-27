@@ -9,9 +9,10 @@ import java.io.IOException;
 
 // Single sprite
 public class Sprite extends JComponent implements Comparable<Sprite> {
+    protected String name = "Sprite";
     private final Image image;
     protected int x, y, z;
-    protected int w, h;
+    protected static int win_w, win_h;
 
     public Sprite(@NotNull String path, int x, int y, int z) throws IOException {
         image = new Image(path);
@@ -27,45 +28,65 @@ public class Sprite extends JComponent implements Comparable<Sprite> {
         this.z = z;
     }
 
-    public void setWindowDim(int w, int h){
-        this.w = w;
-        this.h = h;
+    // Named sprites for easier debug
+    public Sprite(@NotNull String path, int x, int y, int z, String name) throws IOException {
+        image = new Image(path);
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.name = name;
+    }
+
+    public Sprite(@NotNull Image img, int x, int y, int z, String name){
+        image = img;
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.name = name;
+    }
+
+    public static void setWindowDim(int w, int h){
+        Sprite.win_w = w;
+        Sprite.win_h = h;
     }
 
     // Relative move
-    public void move_by(int x, int y){
-        this.x = this.x + x;
-        this.y = this.y + y;
+    public void moveBy(int dx, int dy){
+        x+=dx;
+        y+=dy;
+    }
+
+    public void moveBy(int dx, int dy, int dz){
+        x+=dx;
+        y+=dy;
+        z+=dz;
     }
 
     // Absolute move
-    public void move_to(int x, int y){
+    public void moveTo(int x, int y){
         this.x = x;
         this.y = y;
     }
 
-    public void move_by(int x, int y, int z){
-        this.x = this.x + x;
-        this.y = this.y + y;
-        this.z = this.z + z;
-    }
+
 
     public boolean visible(){
-        return x <= w && y <= h;
+        return x <= win_w && y <= win_h;
     }
 
+    // TODO: is synchronized needed???
     @Override
-    public void paintComponent(Graphics gr) {   // This method get called at every JFrame refresh
+    public synchronized void paintComponent(Graphics gr) {
         Graphics2D g = (Graphics2D) gr.create();
         BufferedImage buffer = image.getBuffer();
         if ( buffer != null) {
-            g.drawImage(buffer, x, this.h-image.h-y, this);
+            g.drawImage(buffer, x, win_h - image.h - y, this);
         }
     }
 
     @Override
     public String toString(){
-        return String.format("Sprite[%d,%d,%d]", this.x, this.y, this.z);
+        return String.format("%s[%d,%d,%d]", this.name ,this.x, this.y, this.z);
     }
 
     @Override
