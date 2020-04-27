@@ -11,12 +11,13 @@ public class Engine {
     private Scene now;
     private String name;
     private double fps = 60.0;
-    private KeyMapping kmap;
+    private KeyMap kmap;
 
     public Engine(int w, int h, String gameName){
         window = Window.get(w, h);
         window.setTitle(gameName);
         this.name = gameName;
+        Sprite.setWindowDim(window.getW(),window.getH());
     }
 
     // This constructor permit to override fps value
@@ -31,15 +32,13 @@ public class Engine {
         scenes.add(s);
     }
 
-    public void addKeyMap(KeyMapping map){
+    public void addKeyMap(KeyMap map){
         window.addKeyMapping(map);
         this.kmap = map;
     }
 
     private void registerSprites(){
         for(Sprite sprite:now.getSprites()){
-            System.out.println(sprite);
-            sprite.setWindowDim(window.getW(), window.getH());
             window.add(sprite);
             window.revalidate();
         }
@@ -56,12 +55,13 @@ public class Engine {
 
     public void update() throws InterruptedException {
         Thread.sleep((long)((1.0/this.fps)*1000.0));
-        for(KeyMap map:kmap){
-            for(int key:KeyMapping.pressed)
-                if(map.getKey()==key){
-                    map.getFunc().run();
-                }
+        for(Action act: KeyMap.pressed) {
+            act.pressed();
         }
+        for(Action act: KeyMap.released) {
+            act.released();
+        }
+        KeyMap.released.clear();
         window.repaint();
     }
 }
