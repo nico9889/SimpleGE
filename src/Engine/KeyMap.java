@@ -2,13 +2,10 @@ package Engine;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.util.Dictionary;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Set;
+import java.util.*;
 
 public class KeyMap implements KeyListener {
-    private static final Dictionary<Integer, Action> map = new Hashtable<Integer, Action>();
+    private static final Hashtable<Integer, Action> map = new Hashtable<Integer, Action>();
     static Set<Action> pressed = new HashSet<>();
     static Set<Action> released = new HashSet<>();
 
@@ -34,13 +31,16 @@ public class KeyMap implements KeyListener {
     @Override
     public synchronized void keyPressed(KeyEvent keyEvent) {
         int key = keyEvent.getKeyCode();
-        pressed.add(map.get(key));
+        if(map.containsKey(key))
+            pressed.add(map.get(key));
     }
 
     @Override
     public void keyReleased(KeyEvent keyEvent) {
         int key = keyEvent.getKeyCode();
-        released.add(map.get(key));
-        pressed.remove(map.get(key));
+        if(map.containsKey(key)) {
+            released.add(map.get(key));
+            pressed.remove(map.get(key));
+        }
     }
 }
