@@ -31,9 +31,18 @@ public class Main {
         Sprite bg = new Sprite("resources/sprites/background.png", 0,0,2);
         Sprite terrain = new Sprite("resources/sprites/background2.png", 0,0,0);
 
-        Image spr1 = new Image("resources/sprites/spraterino1.png");
-        Animation idle = new Animation(new Image[]{spr1},0);
-        Player donald = new Player(idle, 100, 100, 1);
+        Image idle1 = new Image("resources/sprites/player/idle/idle_1.png");
+        Image idle2 = new Image("resources/sprites/player/idle/idle_2.png");
+        Image idle3 = new Image("resources/sprites/player/idle/idle_3.png");
+        Image idle4 = new Image("resources/sprites/player/idle/idle_4.png");
+        Image idle5 = new Image("resources/sprites/player/idle/idle_5.png");
+        Image idle6 = new Image("resources/sprites/player/idle/idle_6.png");
+        Image idle7 = new Image("resources/sprites/player/idle/idle_7.png");
+        Image idle8 = new Image("resources/sprites/player/idle/idle_8.png");
+        Image idle9 = new Image("resources/sprites/player/idle/idle_9.png");
+
+        Animation idle = new Animation(new Image[]{idle1,idle2,idle3,idle4,idle5,idle6,idle7,idle8,idle9},2);
+        Player donald = new Player(idle, 100, 150, 1);
 
         ArrayList<Sprite> clouds = clouds_gen();
         scene.addSprite(clouds);
@@ -49,10 +58,10 @@ public class Main {
         Action move_left = new Action((() -> donald.moveBy( -2,0)), donald::idle);
         Action move_right = new Action((() -> donald.moveBy( 2,0)), donald::idle);
 
-        KeyMap.addKey(KeyEvent.VK_W, move_up);
-        KeyMap.addKey(KeyEvent.VK_S, move_down);
-        KeyMap.addKey(KeyEvent.VK_A, move_left);
-        KeyMap.addKey(KeyEvent.VK_D, move_right);
+        KeyMap.addKey(KeyEvent.VK_UP, move_up);
+        KeyMap.addKey(KeyEvent.VK_DOWN, move_down);
+        KeyMap.addKey(KeyEvent.VK_LEFT, move_left);
+        KeyMap.addKey(KeyEvent.VK_RIGHT, move_right);
 
         engine.addKeyMap(new KeyMap());
 
