@@ -5,21 +5,39 @@ import Engine.Engine;
 import Engine.Scene;
 import Engine.KeyMap;
 
+import Gfx.AnimSprite;
 import Gfx.Animation;
 import Gfx.Image;
 import Gfx.Sprite;
 
 import java.awt.event.KeyEvent;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 
 public class Main {
+
+
+
+    public static Image[] loadSprites(File folder) throws IOException {
+        Image[] frames = new Image[(folder.listFiles().length)];
+        int frame = 0;
+        for(File file:folder.listFiles()){
+            System.out.println(file.getName());
+            frames[frame] = new Image(file);
+            frame++;
+        }
+        return frames;
+    }
+
     public static ArrayList<Sprite> clouds_gen() throws IOException {
+        Image[] cloud_frames = loadSprites(new File("resources/sprites/world/clouds"));
+        Animation cloud_anim = new Animation(cloud_frames, 60);
         ArrayList<Sprite> clouds = new ArrayList<>();
         Random rnd = new Random();
         for(int i=0;i<10;i++){
-            clouds.add(new Sprite("resources/sprites/cloud.png",Math.abs(rnd.nextInt())%1000,Math.abs(rnd.nextInt())%700+50,1));
+            clouds.add(new AnimSprite(cloud_anim,Math.abs(rnd.nextInt())%1000,Math.abs(rnd.nextInt())%500+150,Math.abs(rnd.nextInt()%5)));
         }
         return clouds;
     }
@@ -31,17 +49,8 @@ public class Main {
         Sprite bg = new Sprite("resources/sprites/background.png", 0,0,2);
         Sprite terrain = new Sprite("resources/sprites/background2.png", 0,0,0);
 
-        Image idle1 = new Image("resources/sprites/player/idle/idle_1.png");
-        Image idle2 = new Image("resources/sprites/player/idle/idle_2.png");
-        Image idle3 = new Image("resources/sprites/player/idle/idle_3.png");
-        Image idle4 = new Image("resources/sprites/player/idle/idle_4.png");
-        Image idle5 = new Image("resources/sprites/player/idle/idle_5.png");
-        Image idle6 = new Image("resources/sprites/player/idle/idle_6.png");
-        Image idle7 = new Image("resources/sprites/player/idle/idle_7.png");
-        Image idle8 = new Image("resources/sprites/player/idle/idle_8.png");
-        Image idle9 = new Image("resources/sprites/player/idle/idle_9.png");
-
-        Animation idle = new Animation(new Image[]{idle1,idle2,idle3,idle4,idle5,idle6,idle7,idle8,idle9},2);
+        Image[] idle_frames = loadSprites(new File("resources/sprites/player/idle/"));
+        Animation idle = new Animation(idle_frames,2);
         Player donald = new Player(idle, 100, 150, 1);
 
         ArrayList<Sprite> clouds = clouds_gen();
@@ -65,12 +74,20 @@ public class Main {
 
         engine.addKeyMap(new KeyMap());
 
+        int[] speeds = new int[clouds.size()];
+        for(int i = 0;i<speeds.length;i++)
+            speeds[i] = Math.abs(rnd.nextInt()%5)+5;
+        int i = 0;
         while(true){
+            i = 0;
             for(Sprite s:clouds){
                 if(s.visible())
-                    s.moveBy(Math.abs(rnd.nextInt())%6,0);
-                else
-                    s.moveTo(-300,Math.abs(rnd.nextInt())%700+50);
+                    s.moveBy(Math.abs(rnd.nextInt())%(speeds[i]),0);
+                else {
+                    s.moveTo(-300, Math.abs(rnd.nextInt()) % 700 + 50);
+                    speeds[i] = Math.abs(rnd.nextInt()%10)+5;
+                }
+                i++;
             }
             engine.update();
         }

@@ -1,5 +1,6 @@
 package Engine;
 
+import Gfx.AnimSprite;
 import Gfx.Sprite;
 
 import java.util.ArrayList;

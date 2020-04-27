@@ -23,10 +23,15 @@ public class Image{
         }
     }
 
-    public Image(@NotNull BufferedImage img, int w, int h){
-        this.h = h;
-        this.w = w;
-        this.buffer = img;
+    public Image(@NotNull File input) throws IOException {
+        try {
+            buffer = ImageIO.read(input);
+            w = buffer.getWidth();
+            h = buffer.getHeight();
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new IOException("Image.Image - Error while loading image: " + input.getName());
+        }
     }
 
     public BufferedImage getBuffer(){
