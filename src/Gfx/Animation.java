@@ -27,7 +27,7 @@ public class Animation {
         return frames[frame];
     }
 
-    // Forcefully get frame.
+    // Forcefully get frame with optional frame update
     public Image getFrame(boolean update){
         if(update){
             frame = frame + 1;

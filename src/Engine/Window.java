@@ -1,11 +1,11 @@
 package Engine;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JFrame;
+import java.awt.Insets;
 
 public class Window extends JFrame{
-    private final int w, h;
-    private final Insets bounds;
+    public final int w, h;
+    public final Insets bounds;
     private static Window instance;
 
     public Window(int w, int h){
@@ -28,14 +28,6 @@ public class Window extends JFrame{
             instance = new Window(w, h);
         }
         return instance;
-    }
-
-    public int getW(){
-        return w - (bounds.left + bounds.right);
-    }
-
-    public int getH() {
-        return h - (bounds.top + bounds.bottom);
     }
 
     @Override

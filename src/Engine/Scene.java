@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class Scene extends ArrayList<Sprite>{
-    public String name;
+    public final String name;
 
     public Scene(String name){
         this.name = name;

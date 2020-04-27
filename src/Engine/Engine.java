@@ -9,15 +9,14 @@ public class Engine {
     private int scene = 0;
     private final ArrayList<Scene> scenes = new ArrayList<Scene>();
     private Scene now;
-    private String name;
+    private final String name;
     private double fps = 60.0;
-    private KeyMap kmap;
 
     public Engine(int w, int h, String gameName){
         window = Window.get(w, h);
         window.setTitle(gameName);
         this.name = gameName;
-        Sprite.setWindowDim(window.getW(),window.getH());
+        Sprite.setWindowDim(window.w,window.h);
     }
 
     // This constructor permit to override fps value
@@ -34,7 +33,6 @@ public class Engine {
 
     public void addKeyMap(KeyMap map){
         window.addKeyMapping(map);
-        this.kmap = map;
     }
 
     private void registerSprites(){
