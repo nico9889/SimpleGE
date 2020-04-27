@@ -4,8 +4,6 @@ import Gfx.AnimSprite;
 import Gfx.Animation;
 import Gfx.Image;
 
-import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 public class Player extends AnimSprite {

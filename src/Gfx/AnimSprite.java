@@ -4,8 +4,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.util.Dictionary;
-import java.util.Hashtable;
 
 public class AnimSprite extends Sprite {
     protected Animation animation;
