@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class Main {
-
     public static ArrayList<Sprite> clouds_gen() throws IOException {
         ArrayList<Sprite> clouds = new ArrayList<>();
         Random rnd = new Random();
@@ -24,6 +23,7 @@ public class Main {
         }
         return clouds;
     }
+
     public static void main(String[] args) throws InterruptedException, IOException {
         Random rnd = new Random();
         Engine engine = new Engine(1280,720, "Test Game");

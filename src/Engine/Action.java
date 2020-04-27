@@ -10,10 +10,12 @@ public class Action {
     }
 
     public void pressed(){
-        pressed.run();
+        if(pressed!=null)
+            pressed.run();
     }
 
     public void released(){
-        released.run();
+        if(released!=null)
+            released.run();
     }
 }

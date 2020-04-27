@@ -6,6 +6,8 @@ import java.util.*;
 
 public class KeyMap implements KeyListener {
     private static final Hashtable<Integer, Action> map = new Hashtable<Integer, Action>();
+
+    // FIXME: this is not thread-safe
     static Set<Action> pressed = new HashSet<>();
     static Set<Action> released = new HashSet<>();
 
