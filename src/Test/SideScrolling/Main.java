@@ -1,4 +1,4 @@
-package Test;
+package Test.SideScrolling;
 
 import Engine.Action;
 import Engine.Engine;
@@ -16,15 +16,18 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 
+/*
+ * Side-scrolling example without collisions check to tests more or less every graphics components.
+ * Clouds are randomly generated and positioned and the movement of the clouds is also randomly decided.
+ */
+
 public class Main {
-
-
+    static final Random rnd = new Random();
 
     public static Image[] loadSprites(File folder) throws IOException {
         Image[] frames = new Image[(folder.listFiles().length)];
         int frame = 0;
         for(File file:folder.listFiles()){
-            System.out.println(file.getName());
             frames[frame] = new Image(file);
             frame++;
         }
@@ -33,17 +36,15 @@ public class Main {
 
     public static ArrayList<Sprite> clouds_gen() throws IOException {
         Image[] cloud_frames = loadSprites(new File("resources/sprites/world/clouds"));
-        Animation cloud_anim = new Animation(cloud_frames, 60);
         ArrayList<Sprite> clouds = new ArrayList<>();
-        Random rnd = new Random();
         for(int i=0;i<10;i++){
+            Animation cloud_anim = new Animation(cloud_frames, Math.abs((rnd.nextInt()%30)+10));
             clouds.add(new AnimSprite(cloud_anim,Math.abs(rnd.nextInt())%1000,Math.abs(rnd.nextInt())%500+150,Math.abs(rnd.nextInt()%5)));
         }
         return clouds;
     }
 
     public static void main(String[] args) throws InterruptedException, IOException {
-        Random rnd = new Random();
         Engine engine = new Engine(1280,720, "Test Game");
         Scene scene = new Scene("Test scene");
         Sprite bg = new Sprite("resources/sprites/background.png", 0,0,2);
@@ -66,7 +67,6 @@ public class Main {
         Action move_down = new Action((() -> donald.moveBy( 0,-2)), donald::idle);
         Action move_left = new Action((() -> donald.moveBy( -2,0)), donald::idle);
         Action move_right = new Action((() -> donald.moveBy( 2,0)), donald::idle);
-
         KeyMap.addKey(KeyEvent.VK_UP, move_up);
         KeyMap.addKey(KeyEvent.VK_DOWN, move_down);
         KeyMap.addKey(KeyEvent.VK_LEFT, move_left);
@@ -78,6 +78,7 @@ public class Main {
         for(int i = 0;i<speeds.length;i++)
             speeds[i] = Math.abs(rnd.nextInt()%5)+5;
         int i = 0;
+
         while(true){
             i = 0;
             for(Sprite s:clouds){

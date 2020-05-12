@@ -69,8 +69,6 @@ public class Sprite extends JComponent implements Comparable<Sprite> {
         this.y = y;
     }
 
-
-
     public boolean visible(){
         return x <= win_w && y <= win_h;
     }
@@ -79,7 +77,7 @@ public class Sprite extends JComponent implements Comparable<Sprite> {
     @Override
     public synchronized void paintComponent(Graphics gr) {
         Graphics2D g = (Graphics2D) gr.create();
-        BufferedImage buffer = image.getBuffer();
+        BufferedImage buffer = image.buffer;
         if ( buffer != null) {
             g.drawImage(buffer, x, win_h - image.h - y, this);
         }
@@ -92,6 +90,6 @@ public class Sprite extends JComponent implements Comparable<Sprite> {
 
     @Override
     public int compareTo(@NotNull Sprite s) {
-        return this.z - s.z;
+        return s.z - this.z;
     }
 }

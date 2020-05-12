@@ -3,6 +3,7 @@ package Engine;
 import Gfx.Sprite;
 
 import java.util.ArrayList;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Engine {
     private final Window window;
@@ -11,6 +12,7 @@ public class Engine {
     private Scene now;
     private final String name;
     private double fps = 60.0;
+    static ReentrantLock lock = new ReentrantLock();
 
     public Engine(int w, int h, String gameName){
         window = Window.get(w, h);
@@ -25,6 +27,7 @@ public class Engine {
         window.setTitle(gameName);
         this.name = gameName;
         this.fps = fps;
+        Sprite.setWindowDim(window.w,window.h);
     }
 
     public void addScene(Scene s){
@@ -53,13 +56,19 @@ public class Engine {
 
     public void update() throws InterruptedException {
         Thread.sleep((long)((1.0/this.fps)*1000.0));
-        for(Action act: KeyMap.pressed) {
-            act.pressed();
+        try {
+            lock.lock();
+            for (Action act : KeyMap.pressed) {
+                act.pressed();
+            }
+            for (Action act : KeyMap.released) {
+                act.released();
+            }
+            KeyMap.released.clear();
+            window.repaint();
         }
-        for(Action act: KeyMap.released) {
-            act.released();
+        finally{
+            lock.unlock();
         }
-        KeyMap.released.clear();
-        window.repaint();
     }
 }
