@@ -2,10 +2,11 @@ package Engine;
 
 import Gfx.Sprite;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class Engine {
+public class Engine extends Thread{
     private final Window window;
     private int scene = 0;
     private final ArrayList<Scene> scenes = new ArrayList<Scene>();
@@ -38,16 +39,21 @@ public class Engine {
         window.addKeyMapping(map);
     }
 
-    private void registerSprites(){
+    private void registerSprites() {
         for(Sprite sprite:now.getSprites()){
             window.add(sprite);
             window.revalidate();
         }
     }
 
-    public void nextScene(){
+    public void nextScene() throws IOException {
+        if(now!=null){
+            for(Sprite s:now.getSprites())
+                window.remove(s);
+        }
         if(this.scene<scenes.size()) {
             now = scenes.get(this.scene);
+            now.registerHitBoxes();
             window.setTitle(this.name + " - " + now.name);
             this.registerSprites();
             this.scene++;
@@ -69,6 +75,17 @@ public class Engine {
         }
         finally{
             lock.unlock();
+        }
+    }
+
+    @Override
+    public void run(){
+        while(true){
+            try {
+                update();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 }
