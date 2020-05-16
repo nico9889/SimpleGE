@@ -28,7 +28,7 @@ public class Main {
         Image[] frames = new Image[(folder.listFiles().length)];
         int frame = 0;
         for(File file:folder.listFiles()){
-            frames[frame] = new Image(file);
+            frames[frame] = new Image(file.getPath());
             frame++;
         }
         return frames;

@@ -16,7 +16,7 @@ public class HitBox extends ArrayList<Rectangle> {
         });
     }
 
-    // FIXME: Rectangle shouldn't be move in absolute way
+    // FIXME: Rectangle shouldn't move in absolute way
     public void moveTo(int x, int y){
         this.forEach(r -> {
             r.x = x;

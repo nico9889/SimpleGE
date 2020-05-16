@@ -12,7 +12,7 @@ import java.util.ArrayList;
 public class Entity extends AnimSprite {
     public final HitBox hb = new HitBox();
     public ArrayList<Entity> collidable = new ArrayList<>();
-    public final ArrayList<Sprite> collisions = new ArrayList<>();
+    protected final ArrayList<Sprite> collisions = new ArrayList<>();
 
     public Entity(@NotNull Animation animation, int x, int y, int z) {
         super(animation, x, y, z);
@@ -28,12 +28,19 @@ public class Entity extends AnimSprite {
         this.collidable.addAll(collidable);
     }
 
+    public void addCollidable(Entity e){
+        this.collidable.add(e);
+    }
+
+    public void removeCollidable(){this.collidable.clear();}
+
     public void removeCollidable(ArrayList<Entity> collidable){
         this.collidable.removeAll(collidable);
     }
 
     @Override
-    public void moveBy(int dx, int dy){
+    public synchronized void moveBy(int dx, int dy){
+        collisions.clear(); // FIXME missing mutual exclusion, collisions cleared before reading
         hb.moveBy(dx, dy);
         for(Entity c:collidable){
             if(hb.checkCollision(c.hb)) collisions.add(c);
@@ -44,6 +51,9 @@ public class Entity extends AnimSprite {
         else{
             hb.moveTo(x, y);
         }
-        collisions.clear();
+    }
+
+    public synchronized ArrayList<Sprite> getCollisions(){
+        return collisions;
     }
 }

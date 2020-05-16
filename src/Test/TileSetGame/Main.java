@@ -89,48 +89,73 @@ public class Main {
     public static void main(String[] args) throws IOException, InterruptedException {
         Engine engine = new Engine(1280, 704, "Pokémon");
         Scene scene = new Scene("Main");
+        Scene scene2 = new Scene("Secondary");
+
         ArrayList<Sprite> clouds = clouds_gen();
         Image[] player_image = {new Image("resources/sprites/player/player.png")};
 
         Animation player_anim = new Animation(player_image, 0);
         Entity player = new Entity(player_anim, 20*32,10*32,1);
         player.autoHitBox();
+
+        Image[] frames = loadSprites(new File("resources/sprites/world/portal"));
+        Animation portal_frames = new Animation(frames, 4);
+        Entity portal = new Entity(portal_frames, 10*32, 10*32, 1);
+        portal.autoHitBox();
+
+        scene.addSprite(portal);
         scene.addSprite(tileGrass());
-        ArrayList<Entity> trees = tileTrees();
-        ArrayList<Sprite> tree_sprites = new ArrayList<>(trees);
-        scene.addSprite(tree_sprites);
+        for(Entity tree:tileTrees())
+            scene.addSprite(tree);
         scene.addSprite(clouds);
         scene.addSprite(player);
+        scene2.addSprite(player);
         ArrayList<Entity> lake = lake(25,5,10,5);
+        for(Entity e:lake(25,5,10,5))
+            scene.addSprite(e);
         scene.addSprite(lake);
         engine.addScene(scene);
+        engine.addScene(scene2);
         engine.nextScene();
 
-        // workaround
-        player.addCollidable(trees);
-        player.addCollidable(lake);
-
-        Action move_up = new Action((() -> player.moveBy( 0,8)) ,null);
+        Action move_up = new Action((() -> player.moveBy( 0,8)) , null);
         Action move_down = new Action((() -> player.moveBy( 0,-8)),null);
         Action move_left = new Action((() -> player.moveBy( -8,0)), null);
         Action move_right = new Action((() -> player.moveBy( 8,0)),null);
         Action swim = new Action (()-> player.removeCollidable(lake), ()->player.addCollidable(lake));
+
         KeyMap.addKey(KeyEvent.VK_UP, move_up);
         KeyMap.addKey(KeyEvent.VK_DOWN, move_down);
         KeyMap.addKey(KeyEvent.VK_LEFT, move_left);
         KeyMap.addKey(KeyEvent.VK_RIGHT, move_right);
         KeyMap.addKey(KeyEvent.VK_E, swim);
-
         engine.addKeyMap(new KeyMap());
-        while(true){
-            for(Sprite s:clouds){
-                if(s.visible())
-                    s.moveBy(Math.abs(rnd.nextInt())%5,Math.abs(rnd.nextInt())%5);
-                else {
-                    s.moveTo((Math.abs(rnd.nextInt()) % 1200)-300, -(Math.abs(rnd.nextInt()) % 300) );
+        engine.start();
+
+        Thread clouds_mov = new Thread(() -> {
+            try {
+                while(true) {
+                    for (Sprite s : clouds) {
+                        if (s.visible())
+                            s.moveBy(Math.abs(rnd.nextInt()) % 5, Math.abs(rnd.nextInt()) % 5);
+                        else {
+                            s.moveTo((Math.abs(rnd.nextInt()) % 1200) - 300, -(Math.abs(rnd.nextInt()) % 300));
+                        }
+                    }
+                    Thread.sleep(1000 / 60);
                 }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
-            engine.update();
+        });
+        clouds_mov.start();
+
+        while(true) {
+            ArrayList<Sprite> c = player.getCollisions();
+            if (c.contains(portal)) {
+                engine.nextScene();
+                Thread.sleep(1000);
+            }
         }
     }
 }
