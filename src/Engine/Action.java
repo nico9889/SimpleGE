@@ -9,6 +9,11 @@ public class Action {
         this.released = released;
     }
 
+    public Action(Runnable pressed){
+        this.pressed = pressed;
+        this.released = null;
+    }
+
     public void pressed(){
         if(pressed!=null)
             pressed.run();

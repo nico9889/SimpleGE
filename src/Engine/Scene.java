@@ -26,42 +26,37 @@ public class Scene extends ArrayList<Sprite>{
         return false;
     }
 
+    public void load(){
+        Collections.sort(this);
+        Collections.sort(entities);
+    }
+
     public void addSprite(Sprite s){
         super.add(s);
-        Collections.sort(this);
     }
 
     public void addSprite(Entity e){
         super.add(e);
         entities.add(e);
-        Collections.sort(entities);
     }
 
     public void addSprite(ArrayList<? extends Sprite> s){
         super.addAll(s);
-        Collections.sort(this);
     }
 
-    // FIXME need several optimizations and MORE tests
+    public void bulkAddEntities(ArrayList<Entity> el){
+        super.addAll(el);
+        entities.addAll(el);
+    }
+
     public void registerHitBoxes(){
+        // FIXME this is vastly inefficient but executed rarely
         for(Entity e:entities){
             e.removeCollidable();
-        }
-        int start=0;
-        int last_z = entities.get(0).z;
-        int end = 0;
-        while(end<entities.size()){
-            if(last_z != entities.get(end).z || end==entities.size()-1){
-                List<Entity> sublist = entities.subList(start, end);
-                for(int j = 0;j<sublist.size(); j++){
-                    for(int k = 0;k<sublist.size();k++) {
-                        if(k!=j) sublist.get(j).addCollidable(sublist.get(k));
-                    }
-                }
-                start=end;
+            for (Entity entity : entities) {
+                if (e != entity && e.z == entity.z)
+                    e.addCollidable(entity);
             }
-            last_z=entities.get(end).z;
-            end++;
         }
     }
     public ArrayList<Sprite> getSprites() {

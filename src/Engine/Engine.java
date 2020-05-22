@@ -14,6 +14,7 @@ public class Engine extends Thread{
     private final String name;
     private double fps = 60.0;
     static ReentrantLock lock = new ReentrantLock();
+    public boolean stop = false;
 
     public Engine(int w, int h, String gameName){
         window = Window.get(w, h);
@@ -53,14 +54,16 @@ public class Engine extends Thread{
         }
         if(this.scene<scenes.size()) {
             now = scenes.get(this.scene);
+            now.load();
             now.registerHitBoxes();
             window.setTitle(this.name + " - " + now.name);
             this.registerSprites();
             this.scene++;
         }
+        System.out.println(now);
     }
 
-    public void update() throws InterruptedException {
+    private void update() throws InterruptedException {
         Thread.sleep((long)((1.0/this.fps)*1000.0));
         try {
             lock.lock();
@@ -80,7 +83,7 @@ public class Engine extends Thread{
 
     @Override
     public void run(){
-        while(true){
+        while(!stop){
             try {
                 update();
             } catch (InterruptedException e) {

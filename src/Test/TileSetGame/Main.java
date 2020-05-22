@@ -12,6 +12,7 @@ import Gfx.Sprite;
 import Physics.Entity;
 
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -105,36 +106,37 @@ public class Main {
 
         scene.addSprite(portal);
         scene.addSprite(tileGrass());
-        for(Entity tree:tileTrees())
-            scene.addSprite(tree);
+        scene.bulkAddEntities(tileTrees());
         scene.addSprite(clouds);
         scene.addSprite(player);
         scene2.addSprite(player);
+
         ArrayList<Entity> lake = lake(25,5,10,5);
-        for(Entity e:lake(25,5,10,5))
-            scene.addSprite(e);
-        scene.addSprite(lake);
+        scene.bulkAddEntities(lake);
         engine.addScene(scene);
         engine.addScene(scene2);
         engine.nextScene();
 
-        Action move_up = new Action((() -> player.moveBy( 0,8)) , null);
-        Action move_down = new Action((() -> player.moveBy( 0,-8)),null);
-        Action move_left = new Action((() -> player.moveBy( -8,0)), null);
-        Action move_right = new Action((() -> player.moveBy( 8,0)),null);
-        Action swim = new Action (()-> player.removeCollidable(lake), ()->player.addCollidable(lake));
+        Action move_up = new Action((() -> player.moveBy( 0,8)) );
+        Action move_down = new Action((() -> player.moveBy( 0,-8)));
+        Action move_left = new Action((() -> player.moveBy( -8,0)));
+        Action move_right = new Action((() -> player.moveBy( 8,0)));
+        Action swim = new Action(()-> player.removeCollidable(lake), ()->player.addCollidable(lake));
+        Action stop = new Action(()->engine.stop=true);
 
         KeyMap.addKey(KeyEvent.VK_UP, move_up);
         KeyMap.addKey(KeyEvent.VK_DOWN, move_down);
         KeyMap.addKey(KeyEvent.VK_LEFT, move_left);
         KeyMap.addKey(KeyEvent.VK_RIGHT, move_right);
         KeyMap.addKey(KeyEvent.VK_E, swim);
+        KeyMap.addKey(KeyEvent.VK_Q, stop);
+
         engine.addKeyMap(new KeyMap());
         engine.start();
 
         Thread clouds_mov = new Thread(() -> {
             try {
-                while(true) {
+                while(!engine.stop) {
                     for (Sprite s : clouds) {
                         if (s.visible())
                             s.moveBy(Math.abs(rnd.nextInt()) % 5, Math.abs(rnd.nextInt()) % 5);
@@ -149,8 +151,8 @@ public class Main {
             }
         });
         clouds_mov.start();
-
-        while(true) {
+        
+        while(!engine.stop) {
             ArrayList<Sprite> c = player.getCollisions();
             if (c.contains(portal)) {
                 engine.nextScene();

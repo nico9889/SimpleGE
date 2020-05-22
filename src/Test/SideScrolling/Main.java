@@ -80,7 +80,6 @@ public class Main {
         int i = 0;
 
         while(true){
-            i = 0;
             for(Sprite s:clouds){
                 if(s.visible())
                     s.moveBy(Math.abs(rnd.nextInt())%(speeds[i]),0);
@@ -90,7 +89,6 @@ public class Main {
                 }
                 i++;
             }
-            engine.update();
         }
     }
 }
