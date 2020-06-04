@@ -12,7 +12,6 @@ import Gfx.Sprite;
 import Physics.Entity;
 
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,7 +25,7 @@ public class Main {
     public static Image[] loadSprites(File folder) throws IOException {
         Image[] frames = new Image[(folder.listFiles().length)];
         int frame = 0;
-        for(File file:folder.listFiles()){
+        for (File file : folder.listFiles()) {
             frames[frame] = new Image(file);
             frame++;
         }

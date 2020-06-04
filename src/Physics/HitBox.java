@@ -1,8 +1,8 @@
 package Physics;
 
-
 import java.awt.Rectangle;
 import java.util.ArrayList;
+
 
 public class HitBox extends ArrayList<Rectangle> {
     public HitBox(){
@@ -13,14 +13,6 @@ public class HitBox extends ArrayList<Rectangle> {
         this.forEach(r -> {
             r.x+=dx;
             r.y+=dy;
-        });
-    }
-
-    // FIXME: Rectangle shouldn't move in absolute way
-    public void moveTo(int x, int y){
-        this.forEach(r -> {
-            r.x = x;
-            r.y = y;
         });
     }
 

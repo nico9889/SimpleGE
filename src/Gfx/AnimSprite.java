@@ -20,8 +20,6 @@ public class AnimSprite extends Sprite {
         super.name = name;
     }
 
-
-    // TODO: is synchronized needed???
     @Override
     public void paintComponent(Graphics gr) {
         Graphics2D g = (Graphics2D) gr.create();

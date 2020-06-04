@@ -30,7 +30,7 @@ public class Sprite extends JComponent implements Comparable<Sprite> {
     }
 
     // Named sprites for easier debug
-    public Sprite(@NotNull String path, int x, int y, int z, String name) throws IOException {
+    public Sprite(@NotNull String path, int x, int y, int z, @NotNull String name) throws IOException {
         image = new Image(path);
         this.x = x;
         this.y = y;
@@ -38,7 +38,7 @@ public class Sprite extends JComponent implements Comparable<Sprite> {
         this.name = name;
     }
 
-    public Sprite(@NotNull Image img, int x, int y, int z, String name){
+    public Sprite(@NotNull Image img, int x, int y, int z, @NotNull String name){
         image = img;
         this.x = x;
         this.y = y;
@@ -60,7 +60,7 @@ public class Sprite extends JComponent implements Comparable<Sprite> {
     public void moveBy(int dx, int dy, int dz){
         x+=dx;
         y+=dy;
-        z+=dz;
+        z+=dz;  // FIXME: changing Z doesn't change the draw order on the buffer neither the collisions
     }
 
     // Absolute move
@@ -73,7 +73,6 @@ public class Sprite extends JComponent implements Comparable<Sprite> {
         return x <= win_w && y <= win_h;
     }
 
-    // TODO: is synchronized needed???
     @Override
     public void paintComponent(Graphics gr) {
         Graphics2D g = (Graphics2D) gr.create();

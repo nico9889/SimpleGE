@@ -2,19 +2,19 @@ package Engine;
 
 import Gfx.Sprite;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class Engine extends Thread{
     private final Window window;
     private int scene = 0;
-    private final ArrayList<Scene> scenes = new ArrayList<Scene>();
+    private final ArrayList<Scene> scenes = new ArrayList<>();
     private Scene now;
     private final String name;
     private double fps = 60.0;
     static ReentrantLock lock = new ReentrantLock();
     public boolean stop = false;
+
 
     public Engine(int w, int h, String gameName){
         window = Window.get(w, h);
@@ -47,7 +47,7 @@ public class Engine extends Thread{
         }
     }
 
-    public void nextScene() throws IOException {
+    public void nextScene(){
         if(now!=null){
             for(Sprite s:now.getSprites())
                 window.remove(s);

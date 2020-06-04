@@ -6,7 +6,6 @@ import Physics.Entity;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 public class Scene extends ArrayList<Sprite>{
     public final String name;
@@ -58,6 +57,7 @@ public class Scene extends ArrayList<Sprite>{
                     e.addCollidable(entity);
             }
         }
+        entities.clear();
     }
     public ArrayList<Sprite> getSprites() {
         return this;

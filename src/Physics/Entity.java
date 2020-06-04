@@ -49,7 +49,7 @@ public class Entity extends AnimSprite {
             super.moveBy(dx, dy);
         }
         else{
-            hb.moveTo(x, y);
+            hb.moveBy(-dx, -dy);
         }
     }
 

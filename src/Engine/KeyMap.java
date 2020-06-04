@@ -7,7 +7,7 @@ import java.util.Hashtable;
 import java.util.Set;
 
 public class KeyMap implements KeyListener {
-    private static final Hashtable<Integer, Action> map = new Hashtable<Integer, Action>();
+    private static final Hashtable<Integer, Action> map = new Hashtable<>();
 
     // TODO: check if Engine lock is ok
     static Set<Action> pressed = new HashSet<>();
