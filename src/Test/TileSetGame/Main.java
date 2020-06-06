@@ -176,19 +176,21 @@ public class Main {
         while(!engine.stop) {
             ArrayList<Sprite> c = player.getCollisions();
             if (c.contains(portal)) {
-                ArrayList<Entity> tree_maze = treeMaze(tree_anim, 16,8);
-                portal.moveBy(-(portal.x - 1088), -(portal.y - 128));
-                player.moveBy(-(player.x - 128), -(player.y - 576));    // FIXME hitbox glitch
-                Scene s = new Scene("Level: " + i++);
-                s.addSprite(tileGrass());
-                s.bulkAddEntities(tree_maze);
-                s.bulkAddEntities(ocean());
-                s.addSprite(clouds);
-                s.addSprite(player);
-                s.addSprite(portal);
-                engine.nextScene();
-                engine.addScene(s);
-                engine.nextScene();
+                synchronized (Engine.class) {   // FIXME workaround?
+                    ArrayList<Entity> tree_maze = treeMaze(tree_anim, 16, 8);
+                    portal.moveBy(-(portal.x - 1088), -(portal.y - 128));
+                    player.moveBy(-(player.x - 128), -(player.y - 576));    // FIXME hitbox glitch
+                    Scene s = new Scene("Level: " + i++);
+                    s.addSprite(tileGrass());
+                    s.bulkAddEntities(tree_maze);
+                    s.bulkAddEntities(ocean());
+                    s.addSprite(clouds);
+                    s.addSprite(player);
+                    s.addSprite(portal);
+                    engine.nextScene();
+                    engine.addScene(s);
+                    engine.nextScene();
+                }
             }
         }
     }
