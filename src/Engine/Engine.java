@@ -3,19 +3,25 @@ package Engine;
 import Gfx.Sprite;
 
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class Engine extends Thread{
+public class Engine extends TimerTask {
     private final Window window;
     private int scene = 0;
     private final ArrayList<Scene> scenes = new ArrayList<>();
     private Scene now;
     private final String name;
     private double fps = 60.0;
-    static ReentrantLock lock = new ReentrantLock();
     public boolean stop = false;
+    private final Timer t = new Timer();
 
-
+    /**
+     * @param w Width of the game window
+     * @param h Height of the game window
+     * @param gameName Game name, visualized in window
+     */
     public Engine(int w, int h, String gameName){
         window = Window.get(w, h);
         window.setTitle(gameName);
@@ -23,6 +29,12 @@ public class Engine extends Thread{
         Sprite.setWindowDim(window.w,window.h);
     }
 
+    /**
+     * @param w Width of the game window
+     * @param h Height of the game window
+     * @param fps Game tick rate
+     * @param gameName Game name, visualized in window
+     */
     // This constructor permit to override fps value
     public Engine(int w, int h, double fps, String gameName){
         window = Window.get(w, h);
@@ -32,10 +44,19 @@ public class Engine extends Thread{
         Sprite.setWindowDim(window.w,window.h);
     }
 
+
+    /**
+     * Add a Scene to the Engine so the Engine can handle element in that scene
+     * @param s Scene with elements
+     */
     public void addScene(Scene s){
         scenes.add(s);
     }
 
+    /**
+     * Add a KeyMap to the Engine so the Engine can handle the function bounded to the keys
+     * @param map KeyMap with stored key
+     */
     public void addKeyMap(KeyMap map){
         window.addKeyMapping(map);
     }
@@ -48,25 +69,59 @@ public class Engine extends Thread{
     }
 
     public void nextScene(){
-        if(now!=null){
-            for(Sprite s:now.getSprites())
-                window.remove(s);
-        }
-        if(this.scene<scenes.size()) {
-            now = scenes.get(this.scene);
-            now.load();
-            now.registerHitBoxes();
-            window.setTitle(this.name + " - " + now.name);
-            this.registerSprites();
-            this.scene++;
+        synchronized (Engine.class){
+            if (now != null) {
+                for (Sprite s : now.getSprites())
+                    window.remove(s);
+            }
+            if (this.scene < scenes.size()) {
+                now = scenes.get(this.scene);
+                now.load();
+                now.registerHitBoxes();
+                window.setTitle(this.name + " - " + now.name);
+                this.registerSprites();
+                this.scene++;
+            }
         }
         System.out.println(now);
     }
 
-    private void update() throws InterruptedException {
-        Thread.sleep((long)((1.0/this.fps)*1000.0));
-        try {
-            lock.lock();
+
+    /**
+     * Start the Engine loop
+     */
+    public void start(){
+        t.schedule(this, 0, (long)(1000.0/fps) );
+    }
+
+    public void stop(){
+        t.cancel();
+        this.stop=true;
+    }
+
+    /**
+     * Given a Runnable function execute that in a loop synchronized with
+     * the Engine timer
+     * @param task Task to execute synchronized with the Engine timer
+     */
+    public void updater(Runnable task){
+        TimerTask ts = new TimerTask(){
+            @Override
+            public void run(){
+                synchronized (Engine.class){
+                    task.run();
+                }
+            }
+        };
+        t.schedule(ts, 0, (long)(1000.0/fps) );
+    }
+
+    /**
+     * Game loop function. This shouldn't be executed directly! Use start() method instead!
+     */
+    @Override
+    public void run(){
+        synchronized (Engine.class) {
             for (Action act : KeyMap.pressed) {
                 act.pressed();
             }
@@ -75,20 +130,6 @@ public class Engine extends Thread{
             }
             KeyMap.released.clear();
             window.repaint();
-        }
-        finally{
-            lock.unlock();
-        }
-    }
-
-    @Override
-    public void run(){
-        while(!stop){
-            try {
-                update();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
         }
     }
 }

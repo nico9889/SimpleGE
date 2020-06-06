@@ -56,4 +56,9 @@ public class Entity extends AnimSprite {
     public synchronized ArrayList<Sprite> getCollisions(){
         return collisions;
     }
+
+    @Override
+    public String toString(){
+        return String.format("Entity@[%d,%d,%d]", x,y,z);
+    }
 }

@@ -3,7 +3,7 @@ package Engine;
 import javax.swing.*;
 import java.awt.*;
 
-public class Window extends JFrame{
+class Window extends JFrame{
     public final int w, h;
     public final Insets bounds;
     private static Window instance;
