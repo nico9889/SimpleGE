@@ -1,4 +1,4 @@
-package Test;
+package Test.SideScrolling;
 
 import Gfx.AnimSprite;
 import Gfx.Animation;

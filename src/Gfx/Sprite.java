@@ -12,7 +12,7 @@ import java.io.IOException;
 public class Sprite extends JComponent implements Comparable<Sprite> {
     protected String name = "Sprite";
     private final Image image;
-    protected int x, y, z;
+    public int x, y, z;
     protected static int win_w, win_h;
 
     public Sprite(@NotNull String path, int x, int y, int z) throws IOException {
@@ -30,7 +30,7 @@ public class Sprite extends JComponent implements Comparable<Sprite> {
     }
 
     // Named sprites for easier debug
-    public Sprite(@NotNull String path, int x, int y, int z, String name) throws IOException {
+    public Sprite(@NotNull String path, int x, int y, int z, @NotNull String name) throws IOException {
         image = new Image(path);
         this.x = x;
         this.y = y;
@@ -38,7 +38,7 @@ public class Sprite extends JComponent implements Comparable<Sprite> {
         this.name = name;
     }
 
-    public Sprite(@NotNull Image img, int x, int y, int z, String name){
+    public Sprite(@NotNull Image img, int x, int y, int z, @NotNull String name){
         image = img;
         this.x = x;
         this.y = y;
@@ -60,7 +60,7 @@ public class Sprite extends JComponent implements Comparable<Sprite> {
     public void moveBy(int dx, int dy, int dz){
         x+=dx;
         y+=dy;
-        z+=dz;
+        z+=dz;  // FIXME: changing Z doesn't change the draw order on the buffer neither the collisions
     }
 
     // Absolute move
@@ -69,19 +69,16 @@ public class Sprite extends JComponent implements Comparable<Sprite> {
         this.y = y;
     }
 
-
-
     public boolean visible(){
         return x <= win_w && y <= win_h;
     }
 
-    // TODO: is synchronized needed???
     @Override
-    public synchronized void paintComponent(Graphics gr) {
+    public void paintComponent(Graphics gr) {
         Graphics2D g = (Graphics2D) gr.create();
-        BufferedImage buffer = image.getBuffer();
+        BufferedImage buffer = image.buffer;
         if ( buffer != null) {
-            g.drawImage(buffer, x, win_h - image.h - y, this);
+            g.drawImage(buffer, x, win_h - image.h - y, null);
         }
     }
 
@@ -92,6 +89,6 @@ public class Sprite extends JComponent implements Comparable<Sprite> {
 
     @Override
     public int compareTo(@NotNull Sprite s) {
-        return this.z - s.z;
+        return s.z - this.z;
     }
 }

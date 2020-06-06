@@ -1,28 +1,64 @@
 package Engine;
 
-import Gfx.AnimSprite;
 import Gfx.Sprite;
+import Physics.Entity;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 
 public class Scene extends ArrayList<Sprite>{
     public final String name;
+    protected final ArrayList<Entity> entities = new ArrayList<>();
 
     public Scene(String name){
         this.name = name;
     }
 
+    @Override
+    public boolean add(Sprite e){
+        return false;
+    }
+
+    @Override
+    public boolean addAll(Collection<? extends Sprite> c) {
+        return false;
+    }
+
+    public void load(){
+        Collections.sort(this);
+        Collections.sort(entities);
+    }
+
     public void addSprite(Sprite s){
-        this.add(s);
-        Collections.sort(this);
+        super.add(s);
     }
 
-    public void addSprite(ArrayList<Sprite> s){
-        this.addAll(s);
-        Collections.sort(this);
+    public void addSprite(Entity e){
+        super.add(e);
+        entities.add(e);
     }
 
+    public void addSprite(ArrayList<? extends Sprite> s){
+        super.addAll(s);
+    }
+
+    public void bulkAddEntities(ArrayList<Entity> el){
+        super.addAll(el);
+        entities.addAll(el);
+    }
+
+    public void registerHitBoxes(){
+        // FIXME this is vastly inefficient but executed rarely
+        for(Entity e:entities){
+            e.removeCollidable();
+            for (Entity entity : entities) {
+                if (e != entity && e.z == entity.z)
+                    e.addCollidable(entity);
+            }
+        }
+        entities.clear();
+    }
     public ArrayList<Sprite> getSprites() {
         return this;
     }

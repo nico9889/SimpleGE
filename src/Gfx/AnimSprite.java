@@ -20,15 +20,13 @@ public class AnimSprite extends Sprite {
         super.name = name;
     }
 
-
-    // TODO: is synchronized needed???
     @Override
-    public synchronized void paintComponent(Graphics gr) {
+    public void paintComponent(Graphics gr) {
         Graphics2D g = (Graphics2D) gr.create();
         Image image = animation.update();
-        BufferedImage buffer = image.getBuffer();
+        BufferedImage buffer = image.buffer;
         if ( buffer != null) {
-            g.drawImage(buffer, x, win_h-image.h-y, this);
+            g.drawImage(buffer, x, win_h-image.h-y, null);
         }
     }
 
