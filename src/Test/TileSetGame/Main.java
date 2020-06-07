@@ -17,9 +17,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 
-/*
- * This is a tileset game like Pokémon. This is used to tests hitbox and collisions.
- */
+
 public class Main {
     private static final Random rnd = new Random();
     private static Image[] tree_frame;
