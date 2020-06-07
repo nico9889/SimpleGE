@@ -21,7 +21,16 @@ import java.util.Random;
  * This is a tileset game like Pokémon. This is used to tests hitbox and collisions.
  */
 public class Main {
-    public static final Random rnd = new Random();
+    private static final Random rnd = new Random();
+    private static Image[] tree_frame;
+    private static int level = 0;
+    private static Engine engine;
+    private static Entity portal;
+
+    private static ArrayList<Sprite> clouds;
+    private static Entity player;
+
+
     public static Image[] loadSprites(File folder) throws IOException {
         Image[] frames = new Image[(folder.listFiles().length)];
         int frame = 0;
@@ -83,6 +92,11 @@ public class Main {
         return sprites;
     }
 
+    public static ArrayList<Entity> treeMaze(int x, int y){
+        Animation tree_anim = new Animation(tree_frame,0);
+        return treeMaze(tree_anim, x,y);
+    }
+
     public static ArrayList<Entity> treeMaze(Animation tree_anim, int x, int y){
         ArrayList<Entity> sprites = new ArrayList<>();
         Maze m = new Maze(x,y);
@@ -97,6 +111,18 @@ public class Main {
             }
         }
         return sprites;
+    }
+
+    public static void newLevel() throws IOException{
+        ArrayList<Entity> tree_maze = treeMaze(16,8);
+        Scene s = new Scene("Level: " + level++);
+        s.addSprite(tileGrass());
+        s.bulkAddEntities(tree_maze);
+        s.bulkAddEntities(ocean());
+        s.addSprite(clouds);
+        s.addSprite(player);
+        s.addSprite(portal);
+        engine.addScene(s);
     }
 
     public static ArrayList<Entity> ocean() throws IOException{
@@ -116,22 +142,22 @@ public class Main {
     }
 
     public static void main(String[] args) throws IOException{
-        Engine engine = new Engine(1280, 704, "Maze");
+        engine = new Engine(1280, 704,"Maze");
         Scene scene = new Scene("Main");
 
-        ArrayList<Sprite> clouds = clouds_gen();
+        clouds = clouds_gen();
         Image[] player_image = {new Image("resources/sprites/player/player.png")};
 
         Animation player_anim = new Animation(player_image, 0);
-        Entity player = new Entity(player_anim, 20*32,10*32,1);
+        player = new Entity(player_anim, 20*32,10*32,1);
         player.autoHitBox();
 
         Image[] frames = loadSprites(new File("resources/sprites/world/portal"));
         Animation portal_frames = new Animation(frames, 4);
-        Entity portal = new Entity(portal_frames, 10*32, 10*32, 1);
+        portal = new Entity(portal_frames, 10*32, 10*32, 1);
         portal.autoHitBox();
 
-        Image[] tree_frame = {new Image("resources/sprites/world/tree/tree.png")};
+        tree_frame = new Image[]{new Image("resources/sprites/world/tree/tree.png")};
         Animation tree_anim = new Animation(tree_frame,0);
 
         Entity tree = new Entity(tree_anim, 32*10, 32*10, 1);
@@ -146,10 +172,11 @@ public class Main {
         engine.addScene(scene);
         engine.nextScene();
 
-        Action move_up = new Action((() -> player.moveBy( 0,8)) );
-        Action move_down = new Action((() -> player.moveBy( 0,-8)));
-        Action move_left = new Action((() -> player.moveBy( -8,0)));
-        Action move_right = new Action((() -> player.moveBy( 8,0)));
+        final int speed = 8;
+        Action move_up = new Action((() -> player.moveBy( 0,speed)) );
+        Action move_down = new Action((() -> player.moveBy( 0,-speed)));
+        Action move_left = new Action((() -> player.moveBy( -speed,0)));
+        Action move_right = new Action((() -> player.moveBy( speed,0)));
         Action swim = new Action(()-> player.removeCollidable(lake), ()->player.addCollidable(lake));
         Action stop = new Action(engine::stop);
 
@@ -172,25 +199,15 @@ public class Main {
                 }
         });
 
-        int i = 0;
+        newLevel();
+
         while(!engine.stop) {
             ArrayList<Sprite> c = player.getCollisions();
             if (c.contains(portal)) {
-                synchronized (Engine.class) {   // FIXME workaround?
-                    ArrayList<Entity> tree_maze = treeMaze(tree_anim, 16, 8);
-                    portal.moveBy(-(portal.x - 1088), -(portal.y - 128));
-                    player.moveBy(-(player.x - 128), -(player.y - 576));    // FIXME hitbox glitch
-                    Scene s = new Scene("Level: " + i++);
-                    s.addSprite(tileGrass());
-                    s.bulkAddEntities(tree_maze);
-                    s.bulkAddEntities(ocean());
-                    s.addSprite(clouds);
-                    s.addSprite(player);
-                    s.addSprite(portal);
-                    engine.nextScene();
-                    engine.addScene(s);
-                    engine.nextScene();
-                }
+                portal.moveBy(-(portal.x - 1088), -(portal.y - 128));
+                player.moveBy(-(player.x - 128), -(player.y - 576));    // FIXME hitbox glitch
+                engine.nextScene();
+                newLevel();
             }
         }
     }
