@@ -9,12 +9,10 @@ import java.util.Set;
 public class KeyMap implements KeyListener {
     private static final Hashtable<Integer, Action> map = new Hashtable<>();
 
-    // TODO: check if Engine synchronization is ok
     static Set<Action> pressed = new HashSet<>();
     static Set<Action> released = new HashSet<>();
 
     public KeyMap(){}
-
 
     /**
      * Bind an Action to the key
@@ -50,7 +48,7 @@ public class KeyMap implements KeyListener {
     @Override
     public void keyReleased(KeyEvent keyEvent) {
         int key = keyEvent.getKeyCode();
-        synchronized (Engine.class) {   // FIXME: can result in released key skipped!
+        synchronized (Engine.class) {
             if (map.containsKey(key)) {
                 released.add(map.get(key));
                 pressed.remove(map.get(key));

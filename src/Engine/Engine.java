@@ -5,7 +5,6 @@ import Gfx.Sprite;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class Engine extends TimerTask {
     private final Window window;
@@ -13,7 +12,8 @@ public class Engine extends TimerTask {
     private final ArrayList<Scene> scenes = new ArrayList<>();
     private Scene now;
     private final String name;
-    private double fps = 60.0;
+    private final double fps;
+    private final double tickrate;
     public boolean stop = false;
     private final Timer t = new Timer();
 
@@ -25,6 +25,8 @@ public class Engine extends TimerTask {
     public Engine(int w, int h, String gameName){
         window = Window.get(w, h);
         window.setTitle(gameName);
+        this.fps = 60.0;
+        this.tickrate = 60.0;
         this.name = gameName;
         Sprite.setWindowDim(window.w,window.h);
     }
@@ -36,11 +38,12 @@ public class Engine extends TimerTask {
      * @param gameName Game name, visualized in window
      */
     // This constructor permit to override fps value
-    public Engine(int w, int h, double fps, String gameName){
+    public Engine(int w, int h, double fps, double tickrate, String gameName){
         window = Window.get(w, h);
         window.setTitle(gameName);
         this.name = gameName;
         this.fps = fps;
+        this.tickrate = tickrate;
         Sprite.setWindowDim(window.w,window.h);
     }
 
@@ -51,6 +54,7 @@ public class Engine extends TimerTask {
      */
     public void addScene(Scene s){
         scenes.add(s);
+        s.load();
     }
 
     /**
@@ -76,14 +80,12 @@ public class Engine extends TimerTask {
             }
             if (this.scene < scenes.size()) {
                 now = scenes.get(this.scene);
-                now.load();
                 now.registerHitBoxes();
                 window.setTitle(this.name + " - " + now.name);
                 this.registerSprites();
                 this.scene++;
             }
         }
-        System.out.println(now);
     }
 
 
@@ -91,7 +93,14 @@ public class Engine extends TimerTask {
      * Start the Engine loop
      */
     public void start(){
-        t.schedule(this, 0, (long)(1000.0/fps) );
+        t.schedule(this, 0, (long)(1000.0/tickrate));
+        TimerTask ts = new TimerTask(){
+            @Override
+            public void run(){
+                window.repaint();
+            }
+        };
+        t.schedule(ts,0,(long)(1000.0/fps));
     }
 
     public void stop(){
@@ -113,7 +122,7 @@ public class Engine extends TimerTask {
                 }
             }
         };
-        t.schedule(ts, 0, (long)(1000.0/fps) );
+        t.schedule(ts, 0, (long)(1000.0/tickrate) );
     }
 
     /**
@@ -129,7 +138,6 @@ public class Engine extends TimerTask {
                 act.released();
             }
             KeyMap.released.clear();
-            window.repaint();
         }
     }
 }
