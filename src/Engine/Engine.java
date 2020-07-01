@@ -15,6 +15,8 @@ public class Engine extends TimerTask {
     private final double fps;
     private final double tickrate;
     public boolean stop = false;
+
+    // FIXME: I probably should get rid of this: this is using a lot of CPU under Linux
     private final Timer t = new Timer();
 
     /**
@@ -74,12 +76,12 @@ public class Engine extends TimerTask {
 
     public void nextScene(){
         synchronized (Engine.class){
-            if (now != null) {
-                for (Sprite s : now.getSprites())
-                    window.remove(s);
-            }
             if (this.scene < scenes.size()) {
-                now = scenes.get(this.scene);
+                if (now != null) {
+                    for (Sprite s : now.getSprites())
+                        window.remove(s);
+                }
+                now = scenes.get(scene);
                 now.registerHitBoxes();
                 window.setTitle(this.name + " - " + now.name);
                 this.registerSprites();
