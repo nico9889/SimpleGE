@@ -10,6 +10,7 @@ import Gfx.Animation;
 import Gfx.Image;
 import Gfx.Sprite;
 import Physics.Entity;
+import Utils.UpdaterHandler;
 
 import java.awt.event.KeyEvent;
 import java.io.File;
@@ -140,7 +141,7 @@ public class Main {
     }
 
     public static void main(String[] args) throws IOException{
-        engine = new Engine(1280, 704,"Maze");
+        engine = new Engine(1280, 704, true, "Maze");
         Scene scene = new Scene("Main");
 
         clouds = clouds_gen();
@@ -187,7 +188,7 @@ public class Main {
 
         engine.addKeyMap(new KeyMap());
         engine.start();
-        engine.updater(()->{
+        UpdaterHandler clouds_updater = engine.updater(()->{
                 for (Sprite s : clouds) {
                     if (s.visible())
                         s.moveBy(Math.abs(rnd.nextInt()) % 5, Math.abs(rnd.nextInt()) % 5);
@@ -196,6 +197,9 @@ public class Main {
                     }
                 }
         });
+
+        Action clouds_stop = new Action(clouds_updater::stop);
+        KeyMap.addKey(KeyEvent.VK_C, clouds_stop);
 
         newLevel();
 

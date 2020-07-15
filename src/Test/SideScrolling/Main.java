@@ -45,7 +45,7 @@ public class Main {
     }
 
     public static void main(String[] args) throws InterruptedException, IOException {
-        Engine engine = new Engine(1280,720, "Test Game");
+        Engine engine = new Engine(1280,720, true, "Test Game");
         Scene scene = new Scene("Test scene");
         Sprite bg = new Sprite("resources/sprites/background.png", 0,0,2);
         Sprite terrain = new Sprite("resources/sprites/background2.png", 0,0,0);

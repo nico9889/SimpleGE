@@ -1,10 +1,14 @@
 package Engine;
 
 import Gfx.Sprite;
+import Utils.UpdaterHandler;
 
 import java.util.ArrayList;
-import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 public class Engine extends TimerTask {
     private final Window window;
@@ -12,38 +16,32 @@ public class Engine extends TimerTask {
     private final ArrayList<Scene> scenes = new ArrayList<>();
     private Scene now;
     private final String name;
-    private final double fps;
-    private final double tickrate;
+    private double fps = 60;
+    private double tickrate = 60;
     public boolean stop = false;
-
-    // FIXME: I probably should get rid of this: this is using a lot of CPU under Linux
-    private final Timer t = new Timer();
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
 
     /**
      * @param w Width of the game window
      * @param h Height of the game window
      * @param gameName Game name, visualized in window
      */
-    public Engine(int w, int h, String gameName){
-        window = Window.get(w, h);
+    public Engine(int w, int h, boolean fullscreen, String gameName){
+        window = Window.get(w, h, fullscreen);
         window.setTitle(gameName);
-        this.fps = 60.0;
-        this.tickrate = 60.0;
         this.name = gameName;
         Sprite.setWindowDim(window.w,window.h);
     }
 
     /**
+     * This constructor permit to override fps value
      * @param w Width of the game window
      * @param h Height of the game window
      * @param fps Game tick rate
      * @param gameName Game name, visualized in window
      */
-    // This constructor permit to override fps value
-    public Engine(int w, int h, double fps, double tickrate, String gameName){
-        window = Window.get(w, h);
-        window.setTitle(gameName);
-        this.name = gameName;
+    public Engine(int w, int h, double fps, double tickrate, boolean fullscreen, String gameName){
+        this(w, h, fullscreen, gameName);
         this.fps = fps;
         this.tickrate = tickrate;
         Sprite.setWindowDim(window.w,window.h);
@@ -95,19 +93,15 @@ public class Engine extends TimerTask {
      * Start the Engine loop
      */
     public void start(){
-        t.schedule(this, 0, (long)(1000.0/tickrate));
-        TimerTask ts = new TimerTask(){
-            @Override
-            public void run(){
-                window.repaint();
-            }
-        };
-        t.schedule(ts,0,(long)(1000.0/fps));
+        // t.schedule(this, 0, (long)(1000.0/tickrate));
+        scheduler.scheduleAtFixedRate(window::repaint, 0, (long)(1000.0/fps), TimeUnit.MILLISECONDS);
+        scheduler.scheduleAtFixedRate(this, 0, (long)(1000.0/tickrate), TimeUnit.MILLISECONDS);
+        // t.schedule(ts,0,(long)(1000.0/fps));
     }
 
     public void stop(){
-        t.cancel();
         this.stop=true;
+        window.close();
     }
 
     /**
@@ -115,16 +109,9 @@ public class Engine extends TimerTask {
      * the Engine timer
      * @param task Task to execute synchronized with the Engine timer
      */
-    public void updater(Runnable task){
-        TimerTask ts = new TimerTask(){
-            @Override
-            public void run(){
-                synchronized (Engine.class){
-                    task.run();
-                }
-            }
-        };
-        t.schedule(ts, 0, (long)(1000.0/tickrate) );
+    public UpdaterHandler updater(Runnable task){
+        ScheduledFuture<?> ts = scheduler.scheduleAtFixedRate(task, 0, (long)(1000.0/tickrate), TimeUnit.MILLISECONDS);
+        return new UpdaterHandler(ts);
     }
 
     /**
