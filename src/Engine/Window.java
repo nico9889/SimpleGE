@@ -2,18 +2,23 @@ package Engine;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowEvent;
 
 class Window extends JFrame{
     public final int w, h;
     public final Insets bounds;
     private static Window instance;
 
-    public Window(int w, int h){
+    private Window(int w, int h, boolean fullscreen){
         this.w = w;
         this.h = h;
         this.setSize(w, h);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setResizable(false);
+        if(fullscreen) {
+            this.setExtendedState(JFrame.MAXIMIZED_BOTH);
+            this.setUndecorated(true);
+        }
         bounds = this.getInsets();
         this.setVisible(true);
     }
@@ -23,9 +28,9 @@ class Window extends JFrame{
         this.addKeyListener(map);
     }
 
-    public static Window get(int w, int h){
+    public static Window get(int w, int h, boolean fullscreen){
         if(instance==null){
-            instance = new Window(w, h);
+            instance = new Window(w, h, fullscreen);
         }
         return instance;
     }
@@ -33,5 +38,9 @@ class Window extends JFrame{
     @Override
     public String toString(){
         return String.format("Window[%d,%d]", w, h);
+    }
+
+    public void close(){
+        this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
     }
 }
