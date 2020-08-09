@@ -1,5 +1,7 @@
 package Gfx;
 
+import org.jetbrains.annotations.NotNull;
+
 public class Animation {
     private final Image[] frames;
     private int frame = 0;
@@ -28,7 +30,7 @@ public class Animation {
     }
 
     // Forcefully get frame with optional frame update
-    public Image getFrame(boolean update){
+    public @NotNull Image getFrame(boolean update){
         if(update){
             frame = frame + 1;
             if(frame>=frames.length) {

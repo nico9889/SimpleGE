@@ -4,6 +4,7 @@ import Engine.Action;
 import Engine.Engine;
 import Engine.Scene;
 import Engine.KeyMap;
+import Engine.TaskHandler;
 
 import Gfx.AnimSprite;
 import Gfx.Animation;
@@ -17,22 +18,36 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 
-/*
- * This is a tileset game like Pokémon. This is used to tests hitbox and collisions.
- */
+
 public class Main {
-    public static final Random rnd = new Random();
-    public static Image[] loadSprites(File folder) throws IOException {
+    private static final Random rnd = new Random();
+    private static Image[] tree_frame;
+    private static int level = 0;
+    private static Engine engine;
+    private static Entity portal;
+
+    private static ArrayList<Sprite> clouds;
+    private static Entity player;
+
+    /*
+    * Utility functions starts here
+    */
+    public static Image[] loadSprites(File folder){
         Image[] frames = new Image[(folder.listFiles().length)];
         int frame = 0;
         for (File file : folder.listFiles()) {
-            frames[frame] = new Image(file);
+            try {
+                frames[frame] = new Image(file);
+            }catch(IOException io){
+                io.printStackTrace();
+                System.exit(-1);
+            }
             frame++;
         }
         return frames;
     }
 
-    public static ArrayList<Sprite> clouds_gen() throws IOException {
+    public static ArrayList<Sprite> clouds_gen(){
         Image[] cloud_frames = loadSprites(new File("resources/sprites/world/clouds"));
         ArrayList<Sprite> clouds = new ArrayList<>();
         for(int i=0;i<5;i++){
@@ -42,13 +57,18 @@ public class Main {
         return clouds;
     }
 
-    public static ArrayList<Sprite> tileGrass() throws IOException {
+    public static ArrayList<Sprite> tileGrass(){
         ArrayList<Sprite> sprites = new ArrayList<>();
-        Image grass = new Image("resources/sprites/world/grass/grass.png");
-        for(int i=0;i<1280;i+=32){
-            for(int j=0;j<704;j+=32){
-                sprites.add(new Sprite(grass, i, j, 0, "Grass"));
+        try {
+            Image grass = new Image("resources/sprites/world/grass/grass.png");
+            for(int i=0;i<1280;i+=32){
+                for(int j=0;j<704;j+=32){
+                    sprites.add(new Sprite(grass, i, j, 0, "Grass"));
+                }
             }
+        }catch(IOException io){
+            io.printStackTrace();
+            System.exit(-1);
         }
         return sprites;
     }
@@ -67,7 +87,7 @@ public class Main {
         return sprites;
     }
 
-    public static ArrayList<Entity> lake(int x, int y,int w, int h) throws IOException{
+    public static ArrayList<Entity> lake(int x, int y,int w, int h){
         ArrayList<Entity> sprites = new ArrayList<>();
         Image[] water_frames = loadSprites(new File("resources/sprites/world/water"));
         Animation water_anim = new Animation(water_frames, 60);
@@ -81,6 +101,11 @@ public class Main {
             }
         }
         return sprites;
+    }
+
+    public static ArrayList<Entity> treeMaze(int x, int y){
+        Animation tree_anim = new Animation(tree_frame,0);
+        return treeMaze(tree_anim, x,y);
     }
 
     public static ArrayList<Entity> treeMaze(Animation tree_anim, int x, int y){
@@ -99,7 +124,19 @@ public class Main {
         return sprites;
     }
 
-    public static ArrayList<Entity> ocean() throws IOException{
+    public static void newLevel(){
+        ArrayList<Entity> tree_maze = treeMaze(16,8);
+        Scene s = new Scene("Level: " + level++);
+        s.addSprite(tileGrass());
+        s.bulkAddEntities(tree_maze);
+        s.bulkAddEntities(ocean());
+        s.addSprite(clouds);
+        s.addSprite(player);
+        s.addSprite(portal);
+        engine.addScene(s);
+    }
+
+    public static ArrayList<Entity> ocean(){
         ArrayList<Entity> sprites = new ArrayList<>();
         Image[] water_frames = loadSprites(new File("resources/sprites/world/water"));
         Animation water_anim = new Animation(water_frames, 30);
@@ -115,23 +152,26 @@ public class Main {
         return sprites;
     }
 
+    /*
+     * Utility functions ends here
+    */
     public static void main(String[] args) throws IOException{
-        Engine engine = new Engine(1280, 704, "Maze");
-        Scene scene = new Scene("Main");
-
-        ArrayList<Sprite> clouds = clouds_gen();
+        engine = new Engine(1280, 704, false, "Maze");          // Creating a new Engine
+        Scene scene = new Scene("Main");                                           // Creating a new Scene
+                                                                                         // Adding elements to the scene
+        clouds = clouds_gen();
         Image[] player_image = {new Image("resources/sprites/player/player.png")};
 
         Animation player_anim = new Animation(player_image, 0);
-        Entity player = new Entity(player_anim, 20*32,10*32,1);
+        player = new Entity(player_anim, 20*32,10*32,1);
         player.autoHitBox();
 
         Image[] frames = loadSprites(new File("resources/sprites/world/portal"));
         Animation portal_frames = new Animation(frames, 4);
-        Entity portal = new Entity(portal_frames, 10*32, 10*32, 1);
+        portal = new Entity(portal_frames, 10*32, 10*32, 1);
         portal.autoHitBox();
 
-        Image[] tree_frame = {new Image("resources/sprites/world/tree/tree.png")};
+        tree_frame = new Image[]{new Image("resources/sprites/world/tree/tree.png")};
         Animation tree_anim = new Animation(tree_frame,0);
 
         Entity tree = new Entity(tree_anim, 32*10, 32*10, 1);
@@ -144,25 +184,28 @@ public class Main {
         ArrayList<Entity> lake = lake(25,5,10,5);
         scene.bulkAddEntities(lake);
         engine.addScene(scene);
-        engine.nextScene();
+        engine.nextScene();                                                              // Loading scene
 
-        Action move_up = new Action((() -> player.moveBy( 0,8)) );
-        Action move_down = new Action((() -> player.moveBy( 0,-8)));
-        Action move_left = new Action((() -> player.moveBy( -8,0)));
-        Action move_right = new Action((() -> player.moveBy( 8,0)));
+        final int speed = 8;                                                             // Binding keys to functions
+        KeyMap map = new KeyMap();
+        engine.addKeyMap(map);
+        Action move_up = new Action((() -> player.moveBy( 0,speed)));
+        Action move_down = new Action((() -> player.moveBy( 0,-speed)));
+        Action move_left = new Action((() -> player.moveBy( -speed,0)));
+        Action move_right = new Action((() -> player.moveBy( speed,0)));
         Action swim = new Action(()-> player.removeCollidable(lake), ()->player.addCollidable(lake));
         Action stop = new Action(engine::stop);
 
-        KeyMap.addKey(KeyEvent.VK_UP, move_up);
-        KeyMap.addKey(KeyEvent.VK_DOWN, move_down);
-        KeyMap.addKey(KeyEvent.VK_LEFT, move_left);
-        KeyMap.addKey(KeyEvent.VK_RIGHT, move_right);
-        KeyMap.addKey(KeyEvent.VK_E, swim);
-        KeyMap.addKey(KeyEvent.VK_Q, stop);
+        map.addKey(KeyEvent.VK_UP, move_up);
+        map.addKey(KeyEvent.VK_DOWN, move_down);
+        map.addKey(KeyEvent.VK_LEFT, move_left);
+        map.addKey(KeyEvent.VK_RIGHT, move_right);
+        map.addKey(KeyEvent.VK_E, swim);
+        map.addKey(KeyEvent.VK_Q, stop);
 
-        engine.addKeyMap(new KeyMap());
-        engine.start();
-        engine.updater(()->{
+
+
+        TaskHandler clouds_update = engine.updater(()->{
                 for (Sprite s : clouds) {
                     if (s.visible())
                         s.moveBy(Math.abs(rnd.nextInt()) % 5, Math.abs(rnd.nextInt()) % 5);
@@ -170,26 +213,34 @@ public class Main {
                         s.moveTo((Math.abs(rnd.nextInt()) % 1200) - 300, -(Math.abs(rnd.nextInt()) % 300));
                     }
                 }
-        });
+        }, "Cloud Update");
+        Action clouds_stop = new Action(clouds_update::stop);
+        Action cloud_start = new Action(clouds_update::start);
+        map.addKey(KeyEvent.VK_C, clouds_stop);
+        map.addKey(KeyEvent.VK_P, cloud_start);
 
-        int i = 0;
+
+        newLevel();
+
+        TaskHandler game = engine.updater( () -> {
+            ArrayList<Sprite> c = player.getCollisions();
+            if (c.contains(portal)) {
+                portal.moveBy(-(portal.x - 1088), -(portal.y - 128));
+                player.moveBy(-(player.x - 128), -(player.y - 576));    // FIXME hitbox glitch
+                engine.nextScene();
+                newLevel();
+            }
+        }, "Game");
+        /*
         while(!engine.stop) {
             ArrayList<Sprite> c = player.getCollisions();
             if (c.contains(portal)) {
-                ArrayList<Entity> tree_maze = treeMaze(tree_anim, 16,8);
                 portal.moveBy(-(portal.x - 1088), -(portal.y - 128));
                 player.moveBy(-(player.x - 128), -(player.y - 576));    // FIXME hitbox glitch
-                Scene s = new Scene("Level: " + i++);
-                s.addSprite(tileGrass());
-                s.bulkAddEntities(tree_maze);
-                s.bulkAddEntities(ocean());
-                s.addSprite(clouds);
-                s.addSprite(player);
-                s.addSprite(portal);
                 engine.nextScene();
-                engine.addScene(s);
-                engine.nextScene();
+                newLevel();
             }
-        }
+        }*/
+        engine.start();
     }
 }
