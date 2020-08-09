@@ -1,26 +1,72 @@
 package Engine;
 
 import Gfx.Sprite;
-import Utils.UpdaterHandler;
 
 import java.util.ArrayList;
-import java.util.TimerTask;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 
-public class Engine extends TimerTask {
+public class Engine{
+    private final Task main, repaint;
     private final Window window;
     private int scene = 0;
     private final ArrayList<Scene> scenes = new ArrayList<>();
     private Scene now;
     private final String name;
-    private double fps = 60;
-    private double tickrate = 60;
+    private double fps = 60, tickrate = 60;
     public boolean stop = false;
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
+    private final ArrayList<Task> pool = new ArrayList<>();
 
+    protected static class Task{
+        private final Thread t;
+        private final Runnable r;
+        private final double tick;
+        private final int id;
+        private static int counter = 0;
+        private final String name;
+        private boolean stop = false;
+
+        public Task(Runnable r, double tick, String name){
+            this.t = new Thread(() -> {
+                try {
+                    while(!this.stop) {
+                        synchronized(Engine.class) {
+                            r.run();
+                        }
+                        Thread.sleep((long) (1000.0 / tick));
+                    }
+                } catch (InterruptedException e) {
+                    System.out.println(this + " interrupted by " + e.toString());
+                }
+            });
+            this.r = r;
+            this.tick = tick;
+            this.id = counter++;
+            this.name = name;
+            System.out.println(this);
+        }
+
+        public void start(){
+            if(t.getState()==Thread.State.NEW) t.start();
+        }
+
+        public Task resume(){
+            Task renew = new Task(r, tick, name);
+            renew.start();
+            return renew;
+        }
+
+        public void stop(){
+            this.stop=true;
+        }
+
+        public boolean isStopped(){
+            return this.stop;
+        }
+
+        @Override
+        public String toString(){
+            return "Task#" + id + ": " + name;
+        }
+    }
     /**
      * @param w Width of the game window
      * @param h Height of the game window
@@ -31,6 +77,8 @@ public class Engine extends TimerTask {
         window.setTitle(gameName);
         this.name = gameName;
         Sprite.setWindowDim(window.w,window.h);
+        this.main = new Task(this::run, tickrate, "Engine::Main loop");
+        this.repaint = new Task(window::repaint, fps, "Engine::Window repaint loop");
     }
 
     /**
@@ -73,7 +121,7 @@ public class Engine extends TimerTask {
     }
 
     public void nextScene(){
-        synchronized (Engine.class){
+        synchronized(Engine.class){     // Stop every update while changing scene
             if (this.scene < scenes.size()) {
                 if (now != null) {
                     for (Sprite s : now.getSprites())
@@ -90,17 +138,22 @@ public class Engine extends TimerTask {
 
 
     /**
-     * Start the Engine loop
+     * Start the Engine loop and user loop
      */
     public void start(){
-        // t.schedule(this, 0, (long)(1000.0/tickrate));
-        scheduler.scheduleAtFixedRate(window::repaint, 0, (long)(1000.0/fps), TimeUnit.MILLISECONDS);
-        scheduler.scheduleAtFixedRate(this, 0, (long)(1000.0/tickrate), TimeUnit.MILLISECONDS);
-        // t.schedule(ts,0,(long)(1000.0/fps));
+        for(Task t: pool){
+            t.start();
+        }
+        main.start();
+        repaint.start();
     }
 
     public void stop(){
         this.stop=true;
+        main.stop();
+        repaint.stop();
+        for(Task t:pool)
+            t.stop();
         window.close();
     }
 
@@ -109,24 +162,22 @@ public class Engine extends TimerTask {
      * the Engine timer
      * @param task Task to execute synchronized with the Engine timer
      */
-    public UpdaterHandler updater(Runnable task){
-        ScheduledFuture<?> ts = scheduler.scheduleAtFixedRate(task, 0, (long)(1000.0/tickrate), TimeUnit.MILLISECONDS);
-        return new UpdaterHandler(ts);
+    public TaskHandler updater(Runnable task, String name){
+        Task t = new Task(task, tickrate, "User::" + name);
+        pool.add(t);
+        return new TaskHandler(t);
     }
 
     /**
-     * Game loop function. This shouldn't be executed directly! Use start() method instead!
+     * Game loop function
      */
-    @Override
-    public void run(){
-        synchronized (Engine.class) {
-            for (Action act : KeyMap.pressed) {
-                act.pressed();
-            }
-            for (Action act : KeyMap.released) {
-                act.released();
-            }
-            KeyMap.released.clear();
+    private void run(){
+        for (Action act : window.km.pressed) {
+            act.pressed();
         }
+        for (Action act : window.km.released) {
+            act.released();
+        }
+        window.km.released.clear();
     }
 }

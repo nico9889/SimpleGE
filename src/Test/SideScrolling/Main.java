@@ -45,7 +45,7 @@ public class Main {
     }
 
     public static void main(String[] args) throws InterruptedException, IOException {
-        Engine engine = new Engine(1280,720, true, "Test Game");
+        Engine engine = new Engine(1280,720, false, "Test Game");
         Scene scene = new Scene("Test scene");
         Sprite bg = new Sprite("resources/sprites/background.png", 0,0,2);
         Sprite terrain = new Sprite("resources/sprites/background2.png", 0,0,0);
@@ -63,23 +63,25 @@ public class Main {
         engine.addScene(scene);
         engine.nextScene();
 
+        KeyMap map = new KeyMap();
         Action move_up = new Action((() -> donald.moveBy( 0,2)), donald::idle);
         Action move_down = new Action((() -> donald.moveBy( 0,-2)), donald::idle);
         Action move_left = new Action((() -> donald.moveBy( -2,0)), donald::idle);
         Action move_right = new Action((() -> donald.moveBy( 2,0)), donald::idle);
-        KeyMap.addKey(KeyEvent.VK_UP, move_up);
-        KeyMap.addKey(KeyEvent.VK_DOWN, move_down);
-        KeyMap.addKey(KeyEvent.VK_LEFT, move_left);
-        KeyMap.addKey(KeyEvent.VK_RIGHT, move_right);
+        map.addKey(KeyEvent.VK_UP, move_up);
+        map.addKey(KeyEvent.VK_DOWN, move_down);
+        map.addKey(KeyEvent.VK_LEFT, move_left);
+        map.addKey(KeyEvent.VK_RIGHT, move_right);
 
-        engine.addKeyMap(new KeyMap());
+        engine.addKeyMap(map);
 
         int[] speeds = new int[clouds.size()];
         for(int i = 0;i<speeds.length;i++)
             speeds[i] = Math.abs(rnd.nextInt()%5)+5;
-        int i = 0;
+
 
         while(true){
+            int i = 0;
             for(Sprite s:clouds){
                 if(s.visible())
                     s.moveBy(Math.abs(rnd.nextInt())%(speeds[i]),0);
