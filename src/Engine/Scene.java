@@ -2,6 +2,8 @@ package Engine;
 
 import Gfx.Sprite;
 import Physics.Entity;
+import Physics.Gravity;
+import Physics.Physics;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -10,9 +12,26 @@ import java.util.Collections;
 public class Scene extends ArrayList<Sprite>{
     public final String name;
     protected final ArrayList<Entity> entities = new ArrayList<>();
+    protected final ArrayList<Gravity> fields = new ArrayList<>();
+    protected final ArrayList<Physics> physicsEntity = new ArrayList<>();
 
     public Scene(String name){
         this.name = name;
+    }
+
+    public void addGravity(Gravity g){
+        fields.add(g);
+    }
+
+    protected void updatePhysics(){
+        for(Physics p: physicsEntity){
+            Entity pe = p.getEntity();
+            for(Gravity g: fields){
+                if(pe.x >= g.x && pe.x <= g.x+g.width && pe.y >= g.y && pe.y <= g.y+g.height){
+                    pe.moveBy((int)(g.forceX*p.weight), (int)(g.forceY*p.weight));
+                }
+            }
+        }
     }
 
     @Override
@@ -28,6 +47,10 @@ public class Scene extends ArrayList<Sprite>{
     public void load(){
         Collections.sort(this);
         Collections.sort(entities);
+        for(Entity e:entities){
+            if(e.p != null)
+                physicsEntity.add(e.p);
+        }
     }
 
     public void addSprite(Sprite s){
@@ -59,9 +82,12 @@ public class Scene extends ArrayList<Sprite>{
         }
         entities.clear();
     }
+
     public ArrayList<Sprite> getSprites() {
         return this;
     }
+
+
 
     @Override
     public String toString(){
