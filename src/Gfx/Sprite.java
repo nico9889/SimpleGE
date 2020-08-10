@@ -52,15 +52,17 @@ public class Sprite extends JComponent implements Comparable<Sprite> {
     }
 
     // Relative move
-    public void moveBy(int dx, int dy){
+    public boolean moveBy(int dx, int dy){
         x+=dx;
         y+=dy;
+        return true;
     }
 
-    public void moveBy(int dx, int dy, int dz){
+    public boolean moveBy(int dx, int dy, int dz){
         x+=dx;
         y+=dy;
         z+=dz;  // FIXME: changing Z doesn't change the draw order on the buffer neither the collisions
+        return true;
     }
 
     // Absolute move
@@ -71,6 +73,10 @@ public class Sprite extends JComponent implements Comparable<Sprite> {
 
     public boolean visible(){
         return x <= win_w && y <= win_h;
+    }
+
+    public void recolor(double r, double g, double b){
+        image.recolor(r,g,b);
     }
 
     @Override
