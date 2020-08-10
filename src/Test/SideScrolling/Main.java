@@ -4,11 +4,13 @@ import Engine.Action;
 import Engine.Engine;
 import Engine.Scene;
 import Engine.KeyMap;
+import Engine.TaskHandler;
 
 import Gfx.AnimSprite;
 import Gfx.Animation;
 import Gfx.Image;
 import Gfx.Sprite;
+import Physics.Entity;
 
 import java.awt.event.KeyEvent;
 import java.io.File;
@@ -39,7 +41,7 @@ public class Main {
         ArrayList<Sprite> clouds = new ArrayList<>();
         for(int i=0;i<10;i++){
             Animation cloud_anim = new Animation(cloud_frames, Math.abs((rnd.nextInt()%30)+10));
-            clouds.add(new AnimSprite(cloud_anim,Math.abs(rnd.nextInt())%1000,Math.abs(rnd.nextInt())%500+150,Math.abs(rnd.nextInt()%5)));
+            clouds.add(new AnimSprite(cloud_anim,Math.abs(rnd.nextInt())%1000,Math.abs(rnd.nextInt())%500+150,2));
         }
         return clouds;
     }
@@ -47,27 +49,31 @@ public class Main {
     public static void main(String[] args) throws InterruptedException, IOException {
         Engine engine = new Engine(1280,720, false, "Test Game");
         Scene scene = new Scene("Test scene");
-        Sprite bg = new Sprite("resources/sprites/background.png", 0,0,2);
-        Sprite terrain = new Sprite("resources/sprites/background2.png", 0,0,0);
+        Sprite bg = new Sprite("resources_sidescrolling/sprites/background.png", 0,0,0);
+        Image t_image = new Image(new File("resources_sidescrolling/sprites/background2.png"));
+        Entity terrain = new Entity(new Animation(new Image[]{t_image},0), 0,0,1);
 
-        Image[] idle_frames = loadSprites(new File("resources/sprites/player/idle/"));
+        Image[] idle_frames = loadSprites(new File("resources_sidescrolling/sprites/player/idle/"));
         Animation idle = new Animation(idle_frames,2);
-        Player donald = new Player(idle, 100, 150, 1);
-
+        Player donald = new Player(idle, 100, 160, 1);
+        donald.autoHitBox();
+        terrain.autoHitBox();
         ArrayList<Sprite> clouds = clouds_gen();
         scene.addSprite(clouds);
-        scene.addSprite(donald);
+        ArrayList<Entity> entities = new ArrayList<>();
+        entities.add(donald);
+        entities.add(terrain);
+        scene.bulkAddEntities(entities);
         scene.addSprite(bg);
-        scene.addSprite(terrain);
 
         engine.addScene(scene);
         engine.nextScene();
 
         KeyMap map = new KeyMap();
-        Action move_up = new Action((() -> donald.moveBy( 0,2)), donald::idle);
-        Action move_down = new Action((() -> donald.moveBy( 0,-2)), donald::idle);
-        Action move_left = new Action((() -> donald.moveBy( -2,0)), donald::idle);
-        Action move_right = new Action((() -> donald.moveBy( 2,0)), donald::idle);
+        Action move_up = new Action((() -> donald.moveBy( 0,8)), donald::idle);
+        Action move_down = new Action((() -> donald.moveBy( 0,-8)), donald::idle);
+        Action move_left = new Action((() -> donald.moveBy( -8,0)), donald::idle);
+        Action move_right = new Action((() -> donald.moveBy( 8,0)), donald::idle);
         map.addKey(KeyEvent.VK_UP, move_up);
         map.addKey(KeyEvent.VK_DOWN, move_down);
         map.addKey(KeyEvent.VK_LEFT, move_left);
@@ -75,22 +81,15 @@ public class Main {
 
         engine.addKeyMap(map);
 
-        int[] speeds = new int[clouds.size()];
-        for(int i = 0;i<speeds.length;i++)
-            speeds[i] = Math.abs(rnd.nextInt()%5)+5;
-
-
-        while(true){
-            int i = 0;
-            for(Sprite s:clouds){
-                if(s.visible())
-                    s.moveBy(Math.abs(rnd.nextInt())%(speeds[i]),0);
+        TaskHandler clouds_update = engine.updater(()->{
+            for (Sprite s : clouds) {
+                if (s.visible())
+                    s.moveBy(Math.abs(rnd.nextInt()) % 5, rnd.nextInt() % 5);
                 else {
-                    s.moveTo(-300, Math.abs(rnd.nextInt()) % 700 + 50);
-                    speeds[i] = Math.abs(rnd.nextInt()%10)+5;
+                    s.moveTo(-(Math.abs(rnd.nextInt()) % 1200) , (Math.abs(rnd.nextInt()) % 300 + 300));
                 }
-                i++;
             }
-        }
+        }, "Cloud Update");
+        engine.start();
     }
 }

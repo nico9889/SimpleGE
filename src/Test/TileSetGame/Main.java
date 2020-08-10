@@ -231,16 +231,6 @@ public class Main {
                 newLevel();
             }
         }, "Game");
-        /*
-        while(!engine.stop) {
-            ArrayList<Sprite> c = player.getCollisions();
-            if (c.contains(portal)) {
-                portal.moveBy(-(portal.x - 1088), -(portal.y - 128));
-                player.moveBy(-(player.x - 128), -(player.y - 576));    // FIXME hitbox glitch
-                engine.nextScene();
-                newLevel();
-            }
-        }*/
         engine.start();
     }
 }
