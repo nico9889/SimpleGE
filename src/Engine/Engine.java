@@ -5,7 +5,7 @@ import Gfx.Sprite;
 import java.util.ArrayList;
 
 public class Engine{
-    private final Task main, repaint;
+    private Task main, repaint;
     private final Window window;
     private int scene = 0;
     private final ArrayList<Scene> scenes = new ArrayList<>();
@@ -64,7 +64,7 @@ public class Engine{
 
         @Override
         public String toString(){
-            return "Task#" + id + ": " + name;
+            return "Task#" + id + ": " + name + "  Tickrate: " + tick;
         }
     }
     /**
@@ -93,6 +93,8 @@ public class Engine{
         this.fps = fps;
         this.tickrate = tickrate;
         Sprite.setWindowDim(window.w,window.h);
+        this.main = new Task(this::run, tickrate, "Engine::Main loop");
+        this.repaint = new Task(window::repaint, fps, "Engine::Window repaint loop");
     }
 
 
@@ -168,6 +170,12 @@ public class Engine{
         return new TaskHandler(t);
     }
 
+    public TaskHandler updater(Runnable task, String name, int tick){
+        Task t = new Task(task, tick, "User::" + name);
+        pool.add(t);
+        return new TaskHandler(t);
+    }
+
     /**
      * Game loop function
      */
@@ -178,6 +186,7 @@ public class Engine{
         for (Action act : window.km.released) {
             act.released();
         }
+        now.updatePhysics();
         window.km.released.clear();
     }
 }
