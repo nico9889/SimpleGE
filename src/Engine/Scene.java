@@ -2,7 +2,7 @@ package Engine;
 
 import Gfx.Sprite;
 import Physics.Entity;
-import Physics.Gravity;
+import Physics.ForceField;
 import Physics.Physics;
 
 import java.util.ArrayList;
@@ -12,21 +12,21 @@ import java.util.Collections;
 public class Scene extends ArrayList<Sprite>{
     public final String name;
     protected final ArrayList<Entity> entities = new ArrayList<>();
-    protected final ArrayList<Gravity> fields = new ArrayList<>();
+    protected final ArrayList<ForceField> fields = new ArrayList<>();
     protected final ArrayList<Physics> physicsEntity = new ArrayList<>();
 
     public Scene(String name){
         this.name = name;
     }
 
-    public void addGravity(Gravity g){
+    public void addGravity(ForceField g){
         fields.add(g);
     }
 
     protected void updatePhysics(){
         for(Physics p: physicsEntity){
             Entity pe = p.getEntity();
-            for(Gravity g: fields){
+            for(ForceField g: fields){
                 if(pe.x >= g.x && pe.x <= g.x+g.width && pe.y >= g.y && pe.y <= g.y+g.height){
                     pe.moveBy((int)(g.forceX*p.weight), (int)(g.forceY*p.weight));
                 }

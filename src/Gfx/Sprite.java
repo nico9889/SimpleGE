@@ -15,6 +15,8 @@ public class Sprite extends JComponent implements Comparable<Sprite> {
     public int x, y, z;
     protected static int win_w, win_h;
 
+    public boolean test = false;
+
     public Sprite(@NotNull String path, int x, int y, int z) throws IOException {
         image = new Image(path);
         this.x = x;
