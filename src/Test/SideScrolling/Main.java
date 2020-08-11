@@ -11,9 +11,8 @@ import Gfx.Animation;
 import Gfx.Image;
 import Gfx.Sprite;
 import Physics.Entity;
-import Physics.Gravity;
+import Physics.ForceField;
 import Physics.Physics;
-import Test.SideScrolling.World.Terrain;
 
 import java.awt.event.KeyEvent;
 import java.io.File;
@@ -58,15 +57,18 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
         Engine engine = new Engine(1280,720,60,60, false, "Test Game");
-        Gravity g = new Gravity(0,0,1280,720, 0.0,3.0);
+        ForceField g = new ForceField(0,0,1280,720, 0.0,3.0);
         Physics donald_p = new Physics(2);
         Physics ex_p = new Physics(3);
 
         Scene scene = new Scene("Test scene");
         Sprite bg = new Sprite("resources_sidescrolling/sprites/background.png", 0,0,0);
         Image t_image = new Image(new File("resources_sidescrolling/sprites/background2.png"));
-        Terrain terrain = new Terrain(new Animation(new Image[]{t_image},0), 0,0,1);
-
+        Entity terrain = new Entity(new Animation(new Image[]{t_image},0), 0,0,1);
+        Entity wall = new Entity(new Animation(new Image[]{t_image},0), 640,100,1);
+        Entity wall2 = new Entity(new Animation(new Image[]{t_image},0), 860,200,1);
+        wall.autoHitBox();
+        wall2.autoHitBox();
         Image[] idle_frames_0 = loadSprites(new File("resources_sidescrolling/sprites/player/idle/"), 1,1,1);
         Image[] idle_frames_1 = loadSprites(new File("resources_sidescrolling/sprites/player/idle/"), 2,0.5,0);
         Animation idle_0 = new Animation(idle_frames_0,4);
@@ -83,6 +85,8 @@ public class Main {
         entities.add(donald);
         entities.add(terrain);
         entities.add(ex);
+        entities.add(wall);
+        entities.add(wall2);
         scene.bulkAddEntities(entities);
         scene.addSprite(bg);
         scene.addGravity(g);
@@ -106,7 +110,6 @@ public class Main {
         map.addKey(KeyEvent.VK_S, second_move_down);
         map.addKey(KeyEvent.VK_A, second_move_left);
         map.addKey(KeyEvent.VK_D, second_move_right);
-
 
 
         engine.addKeyMap(map);

@@ -10,6 +10,7 @@ import Gfx.AnimSprite;
 import Gfx.Animation;
 import Gfx.Image;
 import Gfx.Sprite;
+import Physics.Collision;
 import Physics.Entity;
 
 import java.awt.event.KeyEvent;
@@ -223,12 +224,14 @@ public class Main {
         newLevel();
 
         TaskHandler game = engine.updater( () -> {
-            ArrayList<Sprite> c = player.getCollisions();
-            if (c.contains(portal)) {
-                portal.moveBy(-(portal.x - 1088), -(portal.y - 128));
-                player.moveBy(-(player.x - 128), -(player.y - 576));    // FIXME hitbox glitch
-                engine.nextScene();
-                newLevel();
+            ArrayList<Collision> col = player.getCollisions();
+            for(Collision c:col){   // FIXME: concurrent modification issues
+                if (c.sprite==portal) {
+                    portal.moveBy(-(portal.x - 1088), -(portal.y - 128));
+                    player.moveBy(-(player.x - 128), -(player.y - 576));    // FIXME hitbox glitch
+                    engine.nextScene();
+                    newLevel();
+                }
             }
         }, "Game");
         engine.start();

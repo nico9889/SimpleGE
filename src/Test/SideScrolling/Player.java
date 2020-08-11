@@ -2,6 +2,7 @@ package Test.SideScrolling;
 
 import Gfx.Animation;
 import Gfx.Image;
+import Gfx.Sprite;
 import Physics.Entity;
 import Physics.Physics;
 
@@ -31,11 +32,7 @@ public class Player extends Entity{
         player++;
     }
 
-    @Override
-    public boolean moveBy(int dx, int dy){
-        if(air_distance>200 && dy>0)
-            dy=0;
-        checkHitbox(dx, dy);
+    private void setAnimation(int dx, int dy){
         if(dx>0 && !in_air)
             super.animation = walk_right;
         else if(dx<0 && !in_air)
@@ -48,22 +45,28 @@ public class Player extends Entity{
             last_air=in_air;
             idle();
         }
+    }
 
+    @Override
+    public boolean moveBy(int dx, int dy){
+        if(air_distance>200 && dy>0)
+            dy=0;
+        int[] checked = checkHitbox(dx, dy);
+        setAnimation(dx, dy);
+        dx = checked[0];
+        dy = checked[1];
         if(in_air) {
             if (dy > 0)
                 air_distance = air_distance + Math.abs(dx) + dy;
         }
         else
             air_distance=0;
-        if(collisions.isEmpty()){
-            x += dx;
-            y += dy;
-            return true;
-        }
-        else{
-            hb.moveBy(-dx, -dy);
-            return false;
-        }
+
+        x+=dx;
+        y+=dy;
+        hb.moveBy(dx, dy);
+        return true;
+
     }
 
     public void idle(){
